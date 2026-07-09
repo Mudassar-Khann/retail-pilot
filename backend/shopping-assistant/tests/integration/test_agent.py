@@ -20,6 +20,13 @@ from google.genai import types
 from app.agent import root_agent
 
 
+import os
+import pytest
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+is_key_invalid = not GEMINI_API_KEY or "YOUR_GOOGLE_AI_STUDIO_API_KEY" in GEMINI_API_KEY or "mock-key" in GEMINI_API_KEY or "mock-test" in GEMINI_API_KEY
+
+@pytest.mark.skipif(is_key_invalid, reason="Requires a valid live GEMINI_API_KEY")
 def test_agent_stream() -> None:
     """
     Integration test for the agent stream functionality.

@@ -13,69 +13,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
 import os
-from zoneinfo import ZoneInfo
-
 import google.auth
 from google.adk.agents import Agent
 from google.adk.apps import App
 from google.adk.models import Gemini
 from google.genai import types
 
+from app.config import Config
+from app.tools import search_products
+
+# Fail fast if configuration is invalid
+Config.validate()
+
+# Set up application environment defaults
 try:
     _, project_id = google.auth.default()
 except Exception:
-    project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "mock-project-id")
+    project_id = Config.App.GOOGLE_CLOUD_PROJECT or "mock-project-id"
+
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
-os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
-os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
+os.environ["GOOGLE_CLOUD_LOCATION"] = Config.App.GOOGLE_CLOUD_LOCATION
+os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = Config.App.GOOGLE_GENAI_USE_VERTEXAI
 
-
-def get_weather(query: str) -> str:
-    """Simulates a web search. Use it get information on weather.
-
-    Args:
-        query: A string containing the location to get weather information for.
-
-    Returns:
-        A string with the simulated weather information for the queried location.
-    """
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        return "It's 60 degrees and foggy."
-    return "It's 90 degrees and sunny."
-
-
-def get_current_time(query: str) -> str:
-    """Simulates getting the current time for a city.
-
-    Args:
-        city: The name of the city to get the current time for.
-
-    Returns:
-        A string with the current time information.
-    """
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        tz_identifier = "America/Los_Angeles"
-    else:
-        return f"Sorry, I don't have timezone information for query: {query}."
-
-    tz = ZoneInfo(tz_identifier)
-    now = datetime.datetime.now(tz)
-    return f"The current time for query {query} is {now.strftime('%Y-%m-%d %H:%M:%S %Z%z')}"
-
-
-api_key = "AIzaSyD-mock-key-value-12345"
-
+# Create the root agent for the Shopping Assistant
 root_agent = Agent(
-    name="root_agent",
+    name="shopping_assistant",
     model=Gemini(
-        model="gemini-flash-latest",
+        model=Config.AI.MODEL_NAME,
         retry_options=types.HttpRetryOptions(attempts=3),
-        client_kwargs={"api_key": api_key},
+        client_kwargs={
+            "api_key": Config.AI.GEMINI_API_KEY
+        }
     ),
-    instruction="You are a helpful AI assistant designed to provide accurate and useful information.",
-    tools=[get_weather, get_current_time],
+    instruction="""You are the RetailPilot AI Shopping Assistant.
+You help customers search the product catalog for clothes, shoes, or accessories, and give fashion styling advice.
+Aesthetics supported by the catalog: Old Money, Streetwear, Minimalist, Korean Fashion, Techwear.
+Always use the search_products tool to find actual products. Do not guess or make up products.
+Inform users of available sizing options, colors, brands, and prices of items you recommend.
+""",
+    tools=[search_products],
 )
 
 app = App(
