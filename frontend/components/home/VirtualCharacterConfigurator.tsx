@@ -103,41 +103,39 @@ export default function VirtualCharacterConfigurator() {
   };
 
   return (
-    <section id="character" className="py-20 bg-white border-b border-neutral-100 relative">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+    <section id="character" className="py-24 bg-white border-b border-neutral-100/60 relative">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 bg-neutral-900/5 px-2.5 py-1 text-[10px] font-semibold tracking-widest uppercase text-neutral-800 rounded-full">
-              <Sparkles size={10} className="text-neutral-700" />
-              INTELLIGENT MANNEQUIN SUITE
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-1.5 text-[9px] font-semibold tracking-[0.18em] text-neutral-400 uppercase">
+              <Sparkles size={10} className="text-neutral-400" />
+              Interactive Exhibition
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl font-light tracking-wide text-neutral-900 leading-tight">
-              Interactive Virtual Model
+              Virtual Mannequin
             </h2>
           </div>
           <p className="text-xs font-light text-neutral-500 max-w-xs md:text-right leading-relaxed">
-            Create combinations using items from the catalog. Visualize overlays and style aesthetics instantly in the render viewport.
+            Compose combinations using pieces from our style catalog. Preview garment overlays, fits, and aesthetic matches.
           </p>
         </div>
 
-        {/* Outer container */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border border-neutral-200/60 p-6 sm:p-8 bg-neutral-50/10 shadow-sm relative">
+        {/* Gallery Box Frame */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center border border-neutral-200/60 p-6 sm:p-10 bg-neutral-50/10 rounded-md relative shadow-[0_4px_24px_rgba(0,0,0,0.01)]">
+          {/* Subtle corner line highlights */}
+          <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-neutral-300" />
+          <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-neutral-300" />
+          <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-neutral-300" />
+          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-neutral-300" />
 
-          {/* Accent corners */}
-          <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-neutral-400" />
-          <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-neutral-400" />
-          <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-neutral-400" />
-          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-neutral-400" />
-
-          {/* Left Column: Virtual Model Viewport */}
+          {/* Left Column: Model rendering */}
           <div className="lg:col-span-5 flex justify-center w-full">
             <VirtualModel selection={selection} activeSlot={activeSlot} />
           </div>
 
-          {/* Right Column: Selectors & Summary */}
-          <div className="lg:col-span-7 flex flex-col justify-between gap-8 h-full">
-            {/* Controls */}
+          {/* Right Column: Controls and composition summary */}
+          <div className="lg:col-span-7 flex flex-col justify-between gap-10 h-full">
             <ClothingControls
               selection={selection}
               onPrev={handlePrev}
@@ -147,42 +145,42 @@ export default function VirtualCharacterConfigurator() {
               setActiveSlot={setActiveSlot}
             />
 
-            {/* Summary details */}
-            <div className="border-t border-neutral-100 pt-6 space-y-4">
-              <div className="grid grid-cols-3 gap-4 bg-neutral-50/50 p-4 border border-neutral-100">
+            {/* Composition details summary */}
+            <div className="border-t border-neutral-100 pt-8 space-y-5">
+              <div className="grid grid-cols-3 gap-6 bg-neutral-50/50 p-4 border border-neutral-100/60 rounded-sm">
                 <div>
-                  <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-mono">Total Price</p>
-                  <p className="text-lg font-semibold text-neutral-950 mt-1">
+                  <p className="text-[8px] text-neutral-400 uppercase tracking-widest font-mono">Total Price</p>
+                  <p className="text-base font-semibold text-neutral-900 mt-1">
                     ${totalPrice.toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-mono">Style Match</p>
-                  <p className="text-xs font-semibold text-neutral-800 mt-1.5 uppercase tracking-wide">
+                  <p className="text-[8px] text-neutral-400 uppercase tracking-widest font-mono">Composition</p>
+                  <p className="text-xs font-semibold text-neutral-800 mt-1 uppercase tracking-wide">
                     {calculateAesthetic()}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-mono">Composition</p>
-                  <p className="text-[10px] text-neutral-500 mt-2 font-mono">
-                    {Object.values(selection).filter(Boolean).length}/4 Slots Filled
+                  <p className="text-[8px] text-neutral-400 uppercase tracking-widest font-mono">Fitted Slots</p>
+                  <p className="text-[10px] text-neutral-500 mt-1.5 font-mono">
+                    {Object.values(selection).filter(Boolean).length} of 4 filled
                   </p>
                 </div>
               </div>
 
-              {/* Action row */}
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-[9px] text-neutral-400 uppercase tracking-widest font-semibold font-mono">
-                  (Save / Share feature under development)
+              {/* Composition actions */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <span className="text-[8px] text-neutral-400 uppercase tracking-[0.18em] font-semibold font-mono">
+                  (Configuration Saving under development)
                 </span>
-                <div className="flex gap-2">
-                  <Button disabled variant="outline" size="sm" className="flex items-center gap-1.5">
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <Button disabled variant="outline" size="sm" className="flex items-center gap-1.5 rounded-[2px] w-1/2 sm:w-auto cursor-pointer">
                     <Heart size={12} />
-                    Favorite
+                    Bookmark Look
                   </Button>
-                  <Button disabled size="sm" className="flex items-center gap-1.5">
+                  <Button disabled size="sm" className="flex items-center gap-1.5 rounded-[2px] w-1/2 sm:w-auto cursor-pointer">
                     <Save size={12} />
-                    Save Look
+                    Save Composition
                   </Button>
                 </div>
               </div>

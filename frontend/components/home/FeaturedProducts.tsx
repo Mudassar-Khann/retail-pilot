@@ -109,25 +109,25 @@ export default function FeaturedProducts() {
   ];
 
   return (
-    <section id="products" className="py-20 bg-white border-b border-neutral-100">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+    <section id="products" className="py-24 bg-white border-b border-neutral-100/60">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-2">
-            <p className="text-[10px] font-semibold tracking-widest text-neutral-400 uppercase">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-3">
+            <p className="text-[9px] font-semibold tracking-[0.18em] text-neutral-400 uppercase">
               Curated Essentials
             </p>
             <h2 className="font-serif text-3xl sm:text-4xl font-light tracking-wide text-neutral-900">
-              Featured Catalog
+              Curated Selection
             </h2>
           </div>
-          <p className="text-xs font-light text-neutral-500 max-w-xs md:text-right">
+          <p className="text-xs font-light text-neutral-500 max-w-xs md:text-right leading-relaxed">
             A small selection of items reflecting the core aesthetic principles of our catalog.
           </p>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {/* Products Grid with gap-8 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {mockProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
