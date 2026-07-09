@@ -1,0 +1,20 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: debug-statements
+
+  - repo: local
+    hooks:
+      - id: semgrep
+        name: semgrep
+        entry: python backend/shopping-assistant/semgrep_wrapper.py scan --config=auto --error --skip-unknown-extensions
+        language: system
+        types: [python]
+        pass_filenames: true
