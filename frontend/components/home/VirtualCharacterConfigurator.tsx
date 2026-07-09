@@ -1,138 +1,193 @@
-import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Sparkles, Save, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  VirtualModel,
+  ClothingControls,
+  OutfitSelection,
+  MOCK_TOPS,
+  MOCK_OUTERWEAR,
+  MOCK_BOTTOMS,
+  MOCK_SHOES
+} from "@/components/character";
 
 export default function VirtualCharacterConfigurator() {
+  // Initial Selection: Seeded with one starter outfit for visual presentation
+  const [selection, setSelection] = useState<OutfitSelection>({
+    top: MOCK_TOPS[0], // Classic Heavyweight Cotton Tee
+    outerwear: MOCK_OUTERWEAR[1], // Oversized Vintage Wash Hoodie
+    bottom: MOCK_BOTTOMS[1], // Loose Fit Distressed Jeans
+    shoes: MOCK_SHOES[1] // Minimalist White Leather Sneaker
+  });
+
+  const [activeSlot, setActiveSlot] = useState<string | null>(null);
+
+  // Helper lists map for sliding
+  const itemLists: Record<string, any[]> = {
+    top: MOCK_TOPS,
+    outerwear: MOCK_OUTERWEAR,
+    bottom: MOCK_BOTTOMS,
+    shoes: MOCK_SHOES
+  };
+
+  const handlePrev = (slot: string) => {
+    const list = itemLists[slot];
+    const currentItem = selection[slot as keyof OutfitSelection];
+
+    let nextIndex = 0;
+    if (currentItem) {
+      const idx = list.findIndex(item => item.id === currentItem.id);
+      nextIndex = idx > 0 ? idx - 1 : list.length - 1;
+    }
+
+    setSelection(prev => ({
+      ...prev,
+      [slot]: list[nextIndex]
+    }));
+    setActiveSlot(slot);
+  };
+
+  const handleNext = (slot: string) => {
+    const list = itemLists[slot];
+    const currentItem = selection[slot as keyof OutfitSelection];
+
+    let nextIndex = 0;
+    if (currentItem) {
+      const idx = list.findIndex(item => item.id === currentItem.id);
+      nextIndex = idx < list.length - 1 ? idx + 1 : 0;
+    }
+
+    setSelection(prev => ({
+      ...prev,
+      [slot]: list[nextIndex]
+    }));
+    setActiveSlot(slot);
+  };
+
+  const handleClear = (slot: string) => {
+    setSelection(prev => ({
+      ...prev,
+      [slot]: null
+    }));
+    setActiveSlot(null);
+  };
+
+  // Calculations
+  const totalPrice = Object.values(selection).reduce((sum: number, item: any) => {
+    return sum + (item ? item.price : 0);
+  }, 0);
+
+  // Calculate aesthetic match
+  const calculateAesthetic = () => {
+    const counts: Record<string, number> = {};
+    Object.values(selection).forEach((item: any) => {
+      if (item) {
+        item.style_tags.forEach((tag: string) => {
+          counts[tag] = (counts[tag] || 0) + 1;
+        });
+      }
+    });
+
+    let maxTag = "Neutral";
+    let maxVal = 0;
+    Object.entries(counts).forEach(([tag, val]) => {
+      if (val > maxVal) {
+        maxVal = val;
+        maxTag = tag;
+      }
+    });
+
+    return maxVal > 0 ? `${maxTag} Alignment` : "Neutral Fit";
+  };
+
   return (
-    <section id="character" className="py-20 bg-white border-b border-neutral-100">
+    <section id="character" className="py-20 bg-white border-b border-neutral-100 relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2">
-            <p className="text-[10px] font-semibold tracking-widest text-neutral-400 uppercase">
-              Configurator Suite
-            </p>
-            <h2 className="font-serif text-3xl sm:text-4xl font-light tracking-wide text-neutral-900">
-              Virtual Outfit Configurator
+            <div className="inline-flex items-center gap-1.5 bg-neutral-900/5 px-2.5 py-1 text-[10px] font-semibold tracking-widest uppercase text-neutral-800 rounded-full">
+              <Sparkles size={10} className="text-neutral-700" />
+              INTELLIGENT MANNEQUIN SUITE
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl font-light tracking-wide text-neutral-900 leading-tight">
+              Interactive Virtual Model
             </h2>
           </div>
-          <p className="text-xs font-light text-neutral-500 max-w-xs md:text-right">
-            Customize and visualize fits on our interactive virtual mannequin (under development).
+          <p className="text-xs font-light text-neutral-500 max-w-xs md:text-right leading-relaxed">
+            Create combinations using items from the catalog. Visualize overlays and style aesthetics instantly in the render viewport.
           </p>
         </div>
 
-        {/* Configurator Box */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 border border-neutral-200 bg-neutral-50/20 p-6 sm:p-8 relative">
+        {/* Outer container */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border border-neutral-200/60 p-6 sm:p-8 bg-neutral-50/10 shadow-sm relative">
+
           {/* Accent corners */}
-          <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-neutral-400" />
+          <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-neutral-400" />
           <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-neutral-400" />
           <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-neutral-400" />
           <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-neutral-400" />
 
-          {/* Left Control Column (Shirts, Outerwear) */}
-          <div className="lg:col-span-3 space-y-6 flex flex-col justify-center">
-            {/* Top Selector */}
-            <div className="border border-neutral-200 bg-white p-4 space-y-3">
-              <span className="text-[9px] font-semibold tracking-wider text-neutral-400 uppercase block">
-                Slot: Top (Shirt)
-              </span>
-              <div className="flex items-center justify-between gap-2">
-                <Button disabled variant="outline" size="sm" className="p-2 h-8 w-8">
-                  <ChevronLeft size={14} />
-                </Button>
-                <span className="text-xs font-light text-neutral-400 uppercase tracking-widest">
-                  Not Selected
-                </span>
-                <Button disabled variant="outline" size="sm" className="p-2 h-8 w-8">
-                  <ChevronRight size={14} />
-                </Button>
-              </div>
-            </div>
-
-            {/* Outerwear Selector */}
-            <div className="border border-neutral-200 bg-white p-4 space-y-3">
-              <span className="text-[9px] font-semibold tracking-wider text-neutral-400 uppercase block">
-                Slot: Outerwear (Jacket)
-              </span>
-              <div className="flex items-center justify-between gap-2">
-                <Button disabled variant="outline" size="sm" className="p-2 h-8 w-8">
-                  <ChevronLeft size={14} />
-                </Button>
-                <span className="text-xs font-light text-neutral-400 uppercase tracking-widest">
-                  Not Selected
-                </span>
-                <Button disabled variant="outline" size="sm" className="p-2 h-8 w-8">
-                  <ChevronRight size={14} />
-                </Button>
-              </div>
-            </div>
+          {/* Left Column: Virtual Model Viewport */}
+          <div className="lg:col-span-5 flex justify-center w-full">
+            <VirtualModel selection={selection} activeSlot={activeSlot} />
           </div>
 
-          {/* Center Silhouette Screen */}
-          <div className="lg:col-span-6 bg-white border border-neutral-200 aspect-[4/5] max-w-[380px] mx-auto w-full p-6 flex flex-col justify-between items-center relative overflow-hidden shadow-sm">
-            <div className="flex justify-between items-center w-full text-[9px] font-mono text-neutral-400">
-              <span>SCAN_NODE: 01</span>
-              <span>RENDER: STATIC</span>
-            </div>
+          {/* Right Column: Selectors & Summary */}
+          <div className="lg:col-span-7 flex flex-col justify-between gap-8 h-full">
+            {/* Controls */}
+            <ClothingControls
+              selection={selection}
+              onPrev={handlePrev}
+              onNext={handleNext}
+              onClear={handleClear}
+              activeSlot={activeSlot}
+              setActiveSlot={setActiveSlot}
+            />
 
-            {/* Mannequin Silhouette */}
-            <div className="flex flex-col items-center py-6">
-              <svg
-                className="w-40 h-64 text-neutral-100"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 2a3 3 0 100 6 3 3 0 000-6zm-4.7 9a1.5 1.5 0 00-1.3 1.7l1.5 6c.2.8.9 1.3 1.7 1.3h5.6c.8 0 1.5-.5 1.7-1.3l1.5-6a1.5 1.5 0 00-1.3-1.7H7.3zM8 21v1h2v-1H8zm6 0v1h2v-1h-2z" />
-              </svg>
-              <div className="text-center mt-4">
-                <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[8px] font-semibold tracking-widest uppercase px-2 py-0.5">
-                  <Sparkles size={8} className="animate-pulse" />
-                  STYLING ENGINE OFFLINE
+            {/* Summary details */}
+            <div className="border-t border-neutral-100 pt-6 space-y-4">
+              <div className="grid grid-cols-3 gap-4 bg-neutral-50/50 p-4 border border-neutral-100">
+                <div>
+                  <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-mono">Total Price</p>
+                  <p className="text-lg font-semibold text-neutral-950 mt-1">
+                    ${totalPrice.toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-mono">Style Match</p>
+                  <p className="text-xs font-semibold text-neutral-800 mt-1.5 uppercase tracking-wide">
+                    {calculateAesthetic()}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-mono">Composition</p>
+                  <p className="text-[10px] text-neutral-500 mt-2 font-mono">
+                    {Object.values(selection).filter(Boolean).length}/4 Slots Filled
+                  </p>
+                </div>
+              </div>
+
+              {/* Action row */}
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[9px] text-neutral-400 uppercase tracking-widest font-semibold font-mono">
+                  (Save / Share feature under development)
                 </span>
+                <div className="flex gap-2">
+                  <Button disabled variant="outline" size="sm" className="flex items-center gap-1.5">
+                    <Heart size={12} />
+                    Favorite
+                  </Button>
+                  <Button disabled size="sm" className="flex items-center gap-1.5">
+                    <Save size={12} />
+                    Save Look
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <div className="text-[9px] font-mono text-neutral-400 tracking-wider">
-              RETAILPILOT RENDER ENGINE v0.1.0
-            </div>
-          </div>
-
-          {/* Right Control Column (Bottoms, Shoes) */}
-          <div className="lg:col-span-3 space-y-6 flex flex-col justify-center">
-            {/* Bottoms Selector */}
-            <div className="border border-neutral-200 bg-white p-4 space-y-3">
-              <span className="text-[9px] font-semibold tracking-wider text-neutral-400 uppercase block">
-                Slot: Bottom (Pants)
-              </span>
-              <div className="flex items-center justify-between gap-2">
-                <Button disabled variant="outline" size="sm" className="p-2 h-8 w-8">
-                  <ChevronLeft size={14} />
-                </Button>
-                <span className="text-xs font-light text-neutral-400 uppercase tracking-widest">
-                  Not Selected
-                </span>
-                <Button disabled variant="outline" size="sm" className="p-2 h-8 w-8">
-                  <ChevronRight size={14} />
-                </Button>
-              </div>
-            </div>
-
-            {/* Shoes Selector */}
-            <div className="border border-neutral-200 bg-white p-4 space-y-3">
-              <span className="text-[9px] font-semibold tracking-wider text-neutral-400 uppercase block">
-                Slot: Shoes
-              </span>
-              <div className="flex items-center justify-between gap-2">
-                <Button disabled variant="outline" size="sm" className="p-2 h-8 w-8">
-                  <ChevronLeft size={14} />
-                </Button>
-                <span className="text-xs font-light text-neutral-400 uppercase tracking-widest">
-                  Not Selected
-                </span>
-                <Button disabled variant="outline" size="sm" className="p-2 h-8 w-8">
-                  <ChevronRight size={14} />
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
