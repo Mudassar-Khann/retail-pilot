@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { OutfitSelection } from "./OutfitState";
 import { GarmentOverlayArt } from "./garmentArt";
 import AestheticScore, { StyleScoreResult } from "./AestheticScore";
@@ -27,6 +27,116 @@ const INCOMPLETE_SCORE: StyleScoreResult = {
   alignment_rating: "Incomplete Ensemble",
   critique: "Drape an additional coordinates layer to evaluate alignment.",
 };
+
+// Generative Wave-like Particle Flow Field Mesh (inspired by first reference image)
+function ParticleMeshCanvas({ isSpeedup }: { isSpeedup: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = canvas.width = canvas.offsetWidth;
+    let height = canvas.height = canvas.offsetHeight;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        // Adjust for high-DPI displays
+        const rect = entry.contentRect;
+        width = canvas.width = rect.width;
+        height = canvas.height = rect.height;
+      }
+    });
+    resizeObserver.observe(canvas);
+
+    // Generate particle field nodes
+    const particleCount = 38;
+    const particles: Array<{
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      baseY: number;
+      angle: number;
+      speed: number;
+    }> = [];
+
+    for (let i = 0; i < particleCount; i++) {
+      const x = Math.random() * width;
+      const baseY = Math.random() * height;
+      particles.push({
+        x,
+        y: baseY,
+        vx: (Math.random() * 0.3 + 0.1) * (Math.random() < 0.5 ? -1 : 1),
+        vy: (Math.random() * 0.2 + 0.1) * (Math.random() < 0.5 ? -1 : 1),
+        baseY,
+        angle: Math.random() * Math.PI * 2,
+        speed: Math.random() * 0.01 + 0.004,
+      });
+    }
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      const speedMultiplier = isSpeedup ? 3.5 : 1.0;
+      
+      // Update nodes positions along a wave path
+      particles.forEach((p) => {
+        p.x += p.vx * speedMultiplier;
+        p.angle += p.speed * speedMultiplier;
+        p.y = p.baseY + Math.sin(p.angle) * 15;
+
+        // Loop screen edge boundaries
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+      });
+
+      // Draw thin connected mesh lines (generative wire network)
+      ctx.strokeStyle = isSpeedup ? "rgba(204, 255, 0, 0.12)" : "rgba(255, 255, 255, 0.06)";
+      ctx.lineWidth = 0.5;
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 85) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw tiny node dots
+      particles.forEach((p) => {
+        ctx.fillStyle = isSpeedup 
+          ? "rgba(204, 255, 0, 0.4)" 
+          : "rgba(255, 255, 255, 0.2)";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      resizeObserver.disconnect();
+    };
+  }, [isSpeedup]);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-70" />;
+}
+
 
 export default function VirtualModel({ selection, activeSlot, gender, onGenderChange, onStyleScoreChange }: VirtualModelProps) {
   const [isCalibrating, setIsCalibrating] = useState(false);
@@ -115,6 +225,9 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
         className="absolute top-0 right-[-20%] h-full w-auto opacity-20 pointer-events-none mix-blend-screen z-0"
       />
 
+      {/* Volumetric Wave Particle Canvas (inspired by first reference image) */}
+      <ParticleMeshCanvas isSpeedup={isCalibrating} />
+
       {/* LAYER 1: Base Mannequin Body (male_base.png or female_base.png) */}
       <img 
         src={gender === 'male' ? '/assets/models/male_base.png' : '/assets/models/female_base.png'} 
@@ -141,7 +254,7 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={layerTransition}
-              className="absolute inset-0 z-10 drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] will-change-transform pointer-events-none"
+              className="absolute inset-0 z-10 neon-garment-glow will-change-transform pointer-events-none"
             >
               <GarmentOverlayArt product={selection.bottom} slot="bottom" />
             </motion.div>
@@ -157,7 +270,7 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={layerTransition}
-              className="absolute inset-0 z-20 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] will-change-transform pointer-events-none"
+              className="absolute inset-0 z-20 neon-garment-glow will-change-transform pointer-events-none"
             >
               <GarmentOverlayArt product={selection.top} slot="top" />
             </motion.div>
@@ -173,7 +286,7 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={layerTransition}
-              className="absolute inset-0 z-25 drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)] will-change-transform pointer-events-none"
+              className="absolute inset-0 z-25 neon-garment-glow will-change-transform pointer-events-none"
             >
               <GarmentOverlayArt product={selection.outerwear} slot="outerwear" />
             </motion.div>
@@ -189,7 +302,7 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={layerTransition}
-              className="absolute inset-0 z-15 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] will-change-transform pointer-events-none"
+              className="absolute inset-0 z-15 neon-garment-glow will-change-transform pointer-events-none"
             >
               <GarmentOverlayArt product={selection.shoes} slot="shoes" />
             </motion.div>
