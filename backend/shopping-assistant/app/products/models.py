@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+from enum import Enum
 from typing import List, Optional
 
 class Product(BaseModel):
@@ -15,3 +16,42 @@ class Product(BaseModel):
     season: str = Field(description="Target season (Spring, Summer, Fall, Winter, All-Season)")
     stock_quantity: int = Field(description="Number of items currently available in inventory")
     image_path: Optional[str] = Field(default=None, description="Path to the product image asset")
+    overlay_top_percent: Optional[float] = Field(default=None, description="CSS top offset percent for mannequin overlay")
+    overlay_left_percent: Optional[float] = Field(default=None, description="CSS left offset percent for mannequin overlay")
+    overlay_width_percent: Optional[float] = Field(default=None, description="CSS width percent for mannequin overlay")
+    collection_name: Optional[str] = Field(default=None, description="The curated collection name")
+
+class SavedLook(BaseModel):
+    id: Optional[int] = Field(default=None, description="Unique saved look ID")
+    session_id: str = Field(description="Unique session or user identifier")
+    name: str = Field(description="User customized name for the look")
+    top_id: Optional[int] = Field(default=None, description="Top product ID")
+    bottom_id: Optional[int] = Field(default=None, description="Bottom product ID")
+    outerwear_id: Optional[int] = Field(default=None, description="Outerwear product ID")
+    shoes_id: Optional[int] = Field(default=None, description="Shoes product ID")
+    total_price: float = Field(description="Total price of the look configuration")
+    aesthetic_rating: str = Field(description="Aesthetic rating or synergy match level")
+    created_at: Optional[str] = Field(default=None, description="Timestamp when look was bookmarked")
+
+class OrderStatusEnum(str, Enum):
+    PURCHASED = "purchased"
+    AWAITING_RETURN = "awaiting_return_approval"
+    RETURNED = "returned"
+
+class Order(BaseModel):
+    id: Optional[int] = Field(default=None, ge=1, description="Unique order ID")
+    top_product_id: Optional[int] = Field(default=None, ge=1, description="Purchased top product ID")
+    bottom_product_id: Optional[int] = Field(default=None, ge=1, description="Purchased bottom product ID")
+    outerwear_product_id: Optional[int] = Field(default=None, description="Product ID of outerwear item")
+    shoes_product_id: Optional[int] = Field(default=None, description="Product ID of shoes item")
+    total_price: float = Field(gt=0, description="Total price of the order (must be > 0)")
+    order_status: str = Field(description="Current status of the order (purchased, awaiting_return_approval, returned)")
+    created_at: Optional[str] = Field(default=None, description="Timestamp of purchase")
+
+    @field_validator("order_status")
+    @classmethod
+    def validate_order_status(cls, v: str) -> str:
+        allowed = {e.value for e in OrderStatusEnum}
+        if v not in allowed:
+            raise ValueError(f"order_status must be one of {allowed}, got '{v}'")
+        return v
