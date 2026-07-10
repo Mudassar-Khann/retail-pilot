@@ -106,9 +106,17 @@ export default function CurationDesk({ onExit }: CurationDeskProps) {
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 border border-red-500/20 bg-red-500/5 p-4 rounded-sm text-red-400 text-xs font-mono">
-              <AlertTriangle size={14} />
-              {error}
+            <div className="flex items-center justify-between border border-[var(--border-soft)] bg-[var(--bg-secondary)]/30 p-4 rounded-sm text-[10px] font-mono tracking-widest text-[var(--text-secondary)] uppercase">
+              <div className="flex items-center gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shadow-[0_0_6px_rgba(245,158,11,0.5)]" />
+                <span>[ Network Status // Offline // Backend Services Suspended ]</span>
+              </div>
+              <button 
+                onClick={fetchPendingReturns}
+                className="text-[8px] border border-[var(--border-soft)] px-2.5 py-0.5 rounded-[1px] hover:text-[var(--foreground)] hover:border-[var(--text-secondary)] transition-all cursor-pointer"
+              >
+                [ Retry Sync ]
+              </button>
             </div>
           )}
 
