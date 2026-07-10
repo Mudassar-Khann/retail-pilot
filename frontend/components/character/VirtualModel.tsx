@@ -1,227 +1,253 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import { OutfitSelection } from "./OutfitState";
+import { GarmentOverlayArt } from "./garmentArt";
+import AestheticScore, { StyleScoreResult } from "./AestheticScore";
 
 interface VirtualModelProps {
   selection: OutfitSelection;
   activeSlot: string | null;
+  gender: 'male' | 'female';
+  onGenderChange: (gender: 'male' | 'female') => void;
+  onStyleScoreChange?: (score: StyleScoreResult) => void;
 }
 
-const COLOR_MAP: Record<string, string> = {
-  "Black": "#18181b",
-  "Matte Black": "#0f0f11",
-  "White": "#fafafa",
-  "Navy": "#172554",
-  "Camel": "#b45309",
-  "Cream": "#fafaf9",
-  "Oatmeal": "#e7e5e4",
-  "Charcoal": "#27272a",
-  "Indigo": "#1e1b4b",
-  "Olive": "#3f4238",
-  "Olive Drab": "#2d3027",
-  "Beige": "#e4e4e7",
-  "Silver": "#cbd5e1",
-  "Light Blue": "#bae6fd",
-  "Sage Green": "#d1fae5",
-  "Tan": "#78350f",
-  "Grey": "#71717a",
-  "Grey/White": "#a1a1aa",
-  "Ecru": "#f5f5f4"
+interface StyleScoreRequestPayload {
+  top_id: number | null;
+  bottom_id: number | null;
+  outerwear_id: number | null;
+  shoes_id: number | null;
+  gender: "male" | "female";
+}
+
+const INCOMPLETE_SCORE: StyleScoreResult = {
+  compatibility_score: 0,
+  alignment_rating: "Incomplete Ensemble",
+  critique: "Drape an additional coordinates layer to evaluate alignment.",
 };
 
-export default function VirtualModel({ selection, activeSlot }: VirtualModelProps) {
-  const getHexColor = (colorName?: string) => {
-    if (!colorName) return "#e4e4e7";
-    return COLOR_MAP[colorName] || "#e4e4e7";
-  };
+export default function VirtualModel({ selection, activeSlot, gender, onGenderChange, onStyleScoreChange }: VirtualModelProps) {
+  const [isCalibrating, setIsCalibrating] = useState(false);
+  const [telemetryText, setTelemetryText] = useState("MESH_OK");
+  const [styleScore, setStyleScore] = useState<StyleScoreResult>(INCOMPLETE_SCORE);
+  const [isScoring, setIsScoring] = useState(false);
 
-  // Luxury spring transition
+  // Garment drape calibration effect on change
+  useEffect(() => {
+    setIsCalibrating(true);
+    setTelemetryText("CALIBRATING_DRAPE...");
+    const t1 = setTimeout(() => {
+      setTelemetryText("DRAPE_CALIBRATION_OK");
+    }, 500);
+    const t2 = setTimeout(() => {
+      setIsCalibrating(false);
+      setTelemetryText("MESH_OK");
+    }, 1000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [selection.top, selection.outerwear, selection.bottom, selection.shoes, gender]);
+
+  // Style scoring now evaluates full 4-slot ensemble
+  useEffect(() => {
+    const controller = new AbortController();
+    const payload: StyleScoreRequestPayload = {
+      top_id: selection.top?.id ?? null,
+      bottom_id: selection.bottom?.id ?? null,
+      outerwear_id: selection.outerwear?.id ?? null,
+      shoes_id: selection.shoes?.id ?? null,
+      gender,
+    };
+
+    const timer = window.setTimeout(async () => {
+      setIsScoring(true);
+      try {
+        const response = await fetch("http://localhost:8000/api/style/score", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Style scoring failed with ${response.status}`);
+        }
+
+        const data: StyleScoreResult = await response.json();
+        if (!controller.signal.aborted) {
+          setStyleScore(data);
+          if (onStyleScoreChange) onStyleScoreChange(data);
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.warn("Style compatibility scoring unavailable. Using incomplete state.", error);
+          setStyleScore(INCOMPLETE_SCORE);
+          if (onStyleScoreChange) onStyleScoreChange(INCOMPLETE_SCORE);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsScoring(false);
+        }
+      }
+    }, 400);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [selection.bottom?.id, selection.top?.id, selection.outerwear?.id, selection.shoes?.id, gender]);
+
+  // Elegant fabric drape transition with custom bezier curve
   const layerTransition = {
-    type: "spring" as const,
-    stiffness: 250,
-    damping: 24,
-    mass: 1.0
+    duration: 0.65,
+    ease: [0.16, 1, 0.3, 1] as const
   };
 
   return (
-    <div className="relative w-full max-w-[340px] aspect-[2/3] border border-neutral-200/80 bg-neutral-50/40 overflow-hidden flex flex-col justify-between p-6 rounded-md shadow-sm">
-      {/* Subtle vertical alignment guide line */}
-      <div className="absolute inset-y-0 left-1/2 w-[0.5px] bg-neutral-200/50 pointer-events-none" />
+    <div className="relative w-full max-w-[340px] aspect-[9/16] border border-[var(--border-soft)] bg-[var(--background)] overflow-hidden flex flex-col justify-between p-5 rounded-lg shadow-2xl" style={{ containIntrinsicSize: '340px 604px', contentVisibility: 'auto' }}>
+      {/* LAYER 0: Neon Accent Background (asymmetric neon_accent.png) */}
+      <img 
+        src="/assets/backgrounds/neon_accent.png" 
+        alt="" 
+        className="absolute top-0 right-[-20%] h-full w-auto opacity-20 pointer-events-none mix-blend-screen z-0"
+      />
 
-      {/* Gallery Figure Label */}
-      <div className="flex justify-between items-center w-full text-[9px] font-semibold tracking-[0.18em] text-neutral-400 uppercase z-10">
-        <span>FIGURE 01 / MODEL</span>
+      {/* LAYER 1: Base Mannequin Body (male_base.png or female_base.png) */}
+      <img 
+        src={gender === 'male' ? '/assets/models/male_base.png' : '/assets/models/female_base.png'} 
+        alt={`${gender} model`} 
+        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none opacity-80"
+      />
+
+      {/* Gallery Header Label */}
+      <div className="flex justify-between items-center w-full text-[9px] font-semibold tracking-[0.18em] text-[var(--text-muted)] uppercase z-10">
+        <span>MODEL: VIRTUAL_TRYON</span>
         <span className="flex items-center gap-1.5 font-light">
-          {activeSlot ? `RECONFIGURING: ${activeSlot}` : "STABLE FIT"}
+          {isCalibrating ? "CALIBRATING..." : "STABLE"}
         </span>
       </div>
 
-      {/* Model Canvas */}
-      <div className="relative w-full flex-1 flex justify-center items-center py-4">
-        <svg
-          viewBox="0 0 320 480"
-          className="w-full h-full max-h-[380px] drop-shadow-[0_4px_16px_rgba(0,0,0,0.01)]"
-          style={{ overflow: "visible" }}
-        >
-          {/* BASE MANNEQUIN BODY */}
-          <g className="text-neutral-300" stroke="currentColor" strokeWidth="1" fill="none">
-            {/* Elegant backdrop guide circle */}
-            <circle cx="160" cy="240" r="140" className="stroke-neutral-100" strokeWidth="0.5" />
+      {/* LAYER 2: Garment Overlays Container */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        {/* BOTTOMS */}
+        <AnimatePresence mode="popLayout">
+          {selection.bottom && (
+            <motion.div
+              key={`bottom-${selection.bottom.id}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={layerTransition}
+              className="absolute inset-0 z-10 drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] will-change-transform pointer-events-none"
+            >
+              <GarmentOverlayArt product={selection.bottom} slot="bottom" />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-            {/* Head */}
-            <ellipse cx="160" cy="50" rx="16" ry="22" className="fill-neutral-50 stroke-neutral-200" />
-            {/* Neck */}
-            <path d="M155 71 L155 86 L165 86 L165 71 Z" className="fill-neutral-50 stroke-neutral-200" />
-            {/* Torso outline */}
-            <path d="M125 94 L195 94 L176 180 L144 180 Z" className="fill-neutral-50 stroke-neutral-200" />
-            {/* Shoulders joint */}
-            <circle cx="123" cy="95" r="3" className="fill-neutral-50 stroke-neutral-200" />
-            <circle cx="197" cy="95" r="3" className="fill-neutral-50 stroke-neutral-200" />
-            {/* Arms */}
-            <path d="M121 98 L110 180 L104 240" className="stroke-neutral-200" />
-            <path d="M199 98 L210 180 L216 240" className="stroke-neutral-200" />
-            {/* Hips & Legs */}
-            <path d="M144 180 L138 300 L132 420" className="stroke-neutral-200" />
-            <path d="M176 180 L182 300 L188 420" className="stroke-neutral-200" />
-          </g>
+        {/* TOPS */}
+        <AnimatePresence mode="popLayout">
+          {selection.top && (
+            <motion.div
+              key={`top-${selection.top.id}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={layerTransition}
+              className="absolute inset-0 z-20 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] will-change-transform pointer-events-none"
+            >
+              <GarmentOverlayArt product={selection.top} slot="top" />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-          {/* LAYER 1: BOTTOM (Pants/Jeans) */}
-          <AnimatePresence mode="popLayout">
-            {selection.bottom && (
-              <motion.g
-                key={`bottom-${selection.bottom.id}`}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={layerTransition}
-              >
-                <path
-                  d="M141 180 L179 180 L191 300 L193 418 L177 418 L160 250 L143 418 L127 418 L129 300 Z"
-                  fill={getHexColor(selection.bottom.color)}
-                  stroke="#333"
-                  strokeWidth="1.2"
-                />
-                {selection.bottom.category === "Cargo Pants" && (
-                  <>
-                    <rect x="123" y="250" width="8" height="12" rx="1" fill={getHexColor(selection.bottom.color)} stroke="#444" strokeWidth="0.8" />
-                    <rect x="189" y="250" width="8" height="12" rx="1" fill={getHexColor(selection.bottom.color)} stroke="#444" strokeWidth="0.8" />
-                  </>
-                )}
-                {selection.bottom.category === "Jeans" && (
-                  <path d="M160 185 L160 248" stroke="rgba(255,255,255,0.12)" strokeWidth="0.8" />
-                )}
-              </motion.g>
-            )}
-          </AnimatePresence>
+        {/* OUTERWEAR */}
+        <AnimatePresence mode="popLayout">
+          {selection.outerwear && (
+            <motion.div
+              key={`outer-${selection.outerwear.id}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={layerTransition}
+              className="absolute inset-0 z-25 drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)] will-change-transform pointer-events-none"
+            >
+              <GarmentOverlayArt product={selection.outerwear} slot="outerwear" />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-          {/* LAYER 2: TOP (T-Shirt/Shirt) */}
-          <AnimatePresence mode="popLayout">
-            {selection.top && (
-              <motion.g
-                key={`top-${selection.top.id}`}
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                transition={layerTransition}
-              >
-                {selection.top.category.includes("Shirt") ? (
-                  <path
-                    d="M142 76 L178 76 L195 94 L212 170 L204 172 L193 114 L177 195 L143 195 L127 114 L116 172 L108 170 L125 94 Z"
-                    fill={getHexColor(selection.top.color)}
-                    stroke="#222"
-                    strokeWidth="1.2"
-                  />
-                ) : (
-                  <path
-                    d="M142 78 L178 78 L195 94 L204 135 L196 138 L192 110 L177 195 L143 195 L128 110 L124 138 L116 135 L125 94 Z"
-                    fill={getHexColor(selection.top.color)}
-                    stroke="#222"
-                    strokeWidth="1.2"
-                  />
-                )}
-                {(selection.top.category === "Shirts" || selection.top.name.includes("Polo")) && (
-                  <path d="M142 78 L160 88 L178 78 L160 96 Z" fill="#fff" fillOpacity={0.08} stroke="rgba(0,0,0,0.2)" strokeWidth="0.8" />
-                )}
-              </motion.g>
-            )}
-          </AnimatePresence>
-
-          {/* LAYER 3: OUTERWEAR (Jacket/Coat/Hoodie) */}
-          <AnimatePresence mode="popLayout">
-            {selection.outerwear && (
-              <motion.g
-                key={`outer-${selection.outerwear.id}`}
-                initial={{ opacity: 0, scale: 0.99 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.99 }}
-                transition={layerTransition}
-              >
-                <path
-                  d="M140 76 Q160 92 180 76 L200 92 L215 180 L206 182 L196 112 L180 205 L140 205 L124 112 L114 182 L105 180 L120 92 Z"
-                  fill={getHexColor(selection.outerwear.color)}
-                  stroke="#111"
-                  strokeWidth="1.2"
-                />
-                {selection.outerwear.name.includes("Puffer") && (
-                  <path
-                    d="M126 130 L194 130 M128 150 L192 150 M130 170 L190 170"
-                    stroke="rgba(255,255,255,0.08)"
-                    strokeWidth="1.2"
-                  />
-                )}
-                {selection.outerwear.name.includes("Coat") && (
-                  <path
-                    d="M140 205 L140 310 L180 310 L180 205 Z"
-                    fill={getHexColor(selection.outerwear.color)}
-                    stroke="#111"
-                    strokeWidth="1.2"
-                  />
-                )}
-              </motion.g>
-            )}
-          </AnimatePresence>
-
-          {/* LAYER 4: SHOES */}
-          <AnimatePresence mode="popLayout">
-            {selection.shoes && (
-              <motion.g
-                key={`shoes-${selection.shoes.id}`}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={layerTransition}
-              >
-                <path
-                  d="M124 418 L134 418 L137 435 L120 435 Q115 425 124 418"
-                  fill={getHexColor(selection.shoes.color)}
-                  stroke="#222"
-                  strokeWidth="1.2"
-                />
-                <path
-                  d="M186 418 L196 418 Q205 425 200 435 L183 435 L186 418"
-                  fill={getHexColor(selection.shoes.color)}
-                  stroke="#222"
-                  strokeWidth="1.2"
-                />
-              </motion.g>
-            )}
-          </AnimatePresence>
-        </svg>
+        {/* SHOES */}
+        <AnimatePresence mode="popLayout">
+          {selection.shoes && (
+            <motion.div
+              key={`shoes-${selection.shoes.id}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={layerTransition}
+              className="absolute inset-0 z-15 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] will-change-transform pointer-events-none"
+            >
+              <GarmentOverlayArt product={selection.shoes} slot="shoes" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Model Details Footer */}
-      <div className="flex justify-between items-end border-t border-neutral-200/80 pt-4 text-neutral-500 z-10">
-        <div className="space-y-0.5">
-          <p className="text-[8px] text-neutral-400 uppercase tracking-widest font-mono">Composition Fit</p>
-          <p className="text-xs font-serif font-light text-neutral-800 tracking-wide">
-            {selection.top?.style_tags[0] || selection.bottom?.style_tags[0] || "Neutral"} Style
-          </p>
-        </div>
-        <div className="text-right space-y-0.5">
-          <p className="text-[8px] text-neutral-400 uppercase tracking-widest font-mono">Silhouette</p>
-          <p className="text-[10px] font-mono text-neutral-700 tracking-wider uppercase font-semibold">Active</p>
-        </div>
+      {/* LAYER 3: Overlay Diagnostics (mesh_flow.png) & Refractive Glass Caustics */}
+      <AnimatePresence>
+        {isCalibrating && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-[var(--background)]/40 z-30 flex flex-col justify-between p-6 pointer-events-none glass-fluted-heavy overflow-hidden"
+          >
+            {/* Shimmering Golden Caustics layer */}
+            <div className="absolute inset-0 caustics-layer z-10 opacity-75" />
+
+            <img 
+              src="/assets/backgrounds/mesh_flow.png" 
+              alt="" 
+              className="absolute inset-0 w-full h-full object-cover opacity-15 animate-pulse z-0"
+            />
+            <div className="flex justify-between items-center w-full text-[8px] font-mono tracking-widest text-[var(--text-secondary)] uppercase z-40 relative">
+              <span className="bg-[var(--background)]/85 px-1.5 py-0.5 rounded-[1px] border border-[var(--border-soft)]/40">DRAPE_RENDER_CORE</span>
+              <span className="text-lime-400 bg-[var(--background)]/85 px-1.5 py-0.5 rounded-[1px] border border-[var(--border-soft)]/40">{telemetryText}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="absolute inset-x-4 bottom-14 z-40">
+        <AestheticScore score={styleScore} isLoading={isScoring} />
+      </div>
+
+      {/* Model Gender controls at the bottom */}
+      <div className="flex justify-center gap-3 z-40 border-t border-[var(--accent-gold)]/18 pt-4">
+        <button 
+          onClick={() => onGenderChange('male')}
+          className={`px-3.5 py-1.5 text-[8px] font-mono tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer ${
+            gender === 'male' 
+              ? 'bg-[var(--accent-gold)] text-[var(--background)] font-bold border border-[var(--accent-gold-hover)]' 
+              : 'bg-[var(--bg-secondary)]/90 text-[var(--text-secondary)] border border-[var(--accent-gold)]/18 hover:text-[var(--text-primary)] hover:border-[var(--accent-gold)]/40'
+          }`}
+        >
+          [ MODEL: MALE ]
+        </button>
+        <button 
+          onClick={() => onGenderChange('female')}
+          className={`px-3.5 py-1.5 text-[8px] font-mono tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer ${
+            gender === 'female' 
+              ? 'bg-[var(--accent-gold)] text-[var(--background)] font-bold border border-[var(--accent-gold-hover)]' 
+              : 'bg-[var(--bg-secondary)]/90 text-[var(--text-secondary)] border border-[var(--accent-gold)]/18 hover:text-[var(--text-primary)] hover:border-[var(--accent-gold)]/40'
+          }`}
+        >
+          [ MODEL: FEMALE ]
+        </button>
       </div>
     </div>
   );
