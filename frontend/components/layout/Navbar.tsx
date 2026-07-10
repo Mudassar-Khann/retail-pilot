@@ -23,14 +23,15 @@ export default function Navbar({ isSearchOpen, setIsSearchOpen, searchQuery, set
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="text-[15px] font-semibold tracking-[0.25em] uppercase text-[var(--accent-gold)] hover:opacity-85 transition-opacity"
+              className="text-[15px] hover:opacity-85 transition-opacity flex items-center"
               id="nav-logo"
             >
-              RetailPilot
+              <span className="font-light tracking-[0.25em] text-[var(--text-muted)] uppercase">Retail</span>
+              <span className="font-serif italic font-bold tracking-[0.1em] text-[var(--accent-gold)] uppercase ml-1">Pilot</span>
             </Link>
-            <span className="inline-flex items-center gap-1.5 bg-[var(--bg-secondary)] text-[var(--accent-gold)] text-[8px] font-semibold tracking-[0.18em] uppercase px-2 py-0.5 rounded-[2px] border border-[var(--accent-gold)]/15">
-              <Sparkles size={8} className="animate-pulse text-[var(--accent-gold)]" />
-              Stylist Active
+            <span className="inline-flex items-center gap-1.5 bg-[var(--accent-gold)]/5 text-[var(--accent-gold)] text-[8px] font-medium tracking-[0.18em] uppercase px-2.5 py-0.5 rounded-full border border-[var(--accent-gold)]/25 backdrop-blur-sm shadow-[0_0_10px_rgba(197,168,128,0.08)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse shadow-[0_0_6px_rgba(163,230,53,0.6)]" />
+              ed_graph // connected
             </span>
           </div>
 
