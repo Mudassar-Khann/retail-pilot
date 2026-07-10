@@ -1,43 +1,58 @@
 import { Badge } from "@/components/ui/badge";
 
-export default function FeaturedCategories() {
+interface FeaturedCategoriesProps {
+  onSelectStyle?: (styleName: string) => void;
+}
+
+export default function FeaturedCategories({ onSelectStyle }: FeaturedCategoriesProps) {
   const categories = [
     {
       name: "Old Money",
-      desc: "Classic elegance and high-society preppy styles. Defined by tailoring, natural fabrics, and quiet luxury.",
+      desc: "Intricate tapestry knits and refined wools. Tailored for heritage silhouettes, luxury textiles, and quiet elegance.",
       colors: ["Camel", "Navy", "Cream"],
-      keywords: ["Classy", "Luxury", "Tailored"],
+      keywords: ["Tapestry", "Wool", "Tailored"],
       bgClass: "bg-amber-500/5 dark:bg-amber-950/10"
     },
     {
       name: "Streetwear",
-      desc: "Heavyweight boxy cuts, custom vintage washes, and skate-culture influences. Comfort meets urban expression.",
+      desc: "Heavyweight cotton fleece hoodies and relaxed wide trousers. Raw, deconstructed, and vintage-washed streetwear.",
       colors: ["Black", "Olive", "Grey"],
-      keywords: ["Oversized", "Graphic", "Raw"],
+      keywords: ["Fleece", "Oversized", "Deconstructed"],
       bgClass: "bg-slate-500/5 dark:bg-slate-950/20"
     },
     {
       name: "Korean Fashion",
-      desc: "Seoul-inspired minimalist drape and soft silhouettes. Pastel washes, dropped shoulders, and clean layers.",
+      desc: "Seoul-inspired dropped-shoulder drape cuts, linen popover tunics, and soft layering. Modern relaxed silhouettes.",
       colors: ["Beige", "Ecru", "Sage"],
-      keywords: ["Drape", "Soft", "Layered"],
+      keywords: ["Drape", "Linen", "Layered"],
       bgClass: "bg-stone-500/5 dark:bg-stone-950/20"
     },
     {
       name: "Minimalist",
-      desc: "Clean contours, simple essentials, and zero distraction. Focus on high-quality fabrics and perfect fits.",
+      desc: "Perfect-fit Pima cotton basics and raw indigo selvedge denim. Clean contours, organic drapes, and zero distractions.",
       colors: ["White", "Charcoal", "Indigo"],
-      keywords: ["Clean", "Basic", "Monochrome"],
+      keywords: ["Selvedge", "Pima", "Monochrome"],
       bgClass: "bg-neutral-500/5 dark:bg-neutral-950/20"
     },
     {
       name: "Techwear",
-      desc: "High-performance functional apparel with utility-focused cargo pockets, GORE-TEX shells, and modular details.",
+      desc: "Weatherproof technical outerwear, multi-pocket modular utility pants, and structured high-performance combat fits.",
       colors: ["Matte Black", "Olive Drab"],
-      keywords: ["Waterproof", "Tactical", "Nylon"],
+      keywords: ["Utility", "Tactical", "Weatherproof"],
       bgClass: "bg-zinc-500/5 dark:bg-zinc-950/20"
     }
   ];
+
+  const handleCardClick = (name: string) => {
+    if (onSelectStyle) {
+      onSelectStyle(name);
+    }
+    // Smooth scroll down to the virtual mannequin configurator container
+    const characterSection = document.getElementById("character");
+    if (characterSection) {
+      characterSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <section id="categories" className="py-24 bg-[var(--background)] border-b border-[var(--border-soft)]">
@@ -53,23 +68,24 @@ export default function FeaturedCategories() {
             </h2>
           </div>
           <p className="text-xs font-light text-[var(--text-secondary)] max-w-xs md:text-right leading-relaxed font-sans">
-            Discover the core aesthetic philosophies that dictate our apparel configurations.
+            Select a style aesthetic to instantly filter and drape the virtual mannequin.
           </p>
         </div>
 
         {/* Cards Grid with rounded-md and premium layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {categories.map((cat, idx) => (
+          {categories.map((cat) => (
             <div
               key={cat.name}
-              className="p-6 border border-[var(--border-soft)] bg-[var(--bg-secondary)]/40 rounded-md flex flex-col justify-between aspect-[3/4] group hover:border-[var(--accent-gold)]/30 transition-all duration-300 relative overflow-hidden shadow-none"
+              onClick={() => handleCardClick(cat.name)}
+              className="p-6 border border-[var(--border-soft)] bg-[var(--bg-secondary)]/40 rounded-md flex flex-col justify-between aspect-[3/4] group hover:border-[var(--accent-gold)]/50 transition-all duration-300 relative overflow-hidden shadow-none cursor-pointer"
             >
               {/* Subtle hover background transition */}
               <div className={`absolute inset-0 ${cat.bgClass} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10`} />
 
               <div className="space-y-4">
-                <span className="text-[9px] text-[var(--text-secondary)] font-mono tracking-widest">
-                  STYLE // 0{idx + 1}
+                <span className="text-[7px] text-[var(--accent-gold)]/60 font-mono tracking-widest uppercase block border-b border-[var(--border-soft)]/20 pb-2">
+                  [ EDITORIAL STYLE ]
                 </span>
                 <h3 className="font-serif text-xl font-normal tracking-wide text-[var(--foreground)]">
                   {cat.name}
