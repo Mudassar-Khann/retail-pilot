@@ -143,6 +143,23 @@ h1, h2, .font-serif {
 }
 
 
+/* ─── Pulsing Neon Green/Lime Aura drop-shadow glow (inspired by Nike reference) ─── */
+@keyframes neon-aurora-glow {
+  0% {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 3px rgba(204, 255, 0, 0.45)) drop-shadow(0 0 10px rgba(16, 185, 129, 0.25));
+  }
+  50% {
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 7px rgba(204, 255, 0, 0.75)) drop-shadow(0 0 20px rgba(16, 185, 129, 0.45));
+  }
+  100% {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 3px rgba(204, 255, 0, 0.45)) drop-shadow(0 0 10px rgba(16, 185, 129, 0.25));
+  }
+}
+
+.neon-garment-glow {
+  animation: neon-aurora-glow 4s infinite ease-in-out;
+}
+
 /* ─── Theme Transition Smoothing ─── */
 *, *::before, *::after {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
