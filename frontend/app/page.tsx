@@ -16,6 +16,7 @@ export default function Home() {
   const [view, setView] = useState<"storefront" | "curation">("storefront");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
 
   return (
     <>
@@ -92,10 +93,10 @@ export default function Home() {
           <main className="flex-1">
             <Hero />
             <AIPromptSearch />
-            <FeaturedCategories />
+            <FeaturedCategories onSelectStyle={setSelectedStyle} />
             <FeaturedProducts searchQuery={searchQuery} />
             <AIStylistPreview />
-            <VirtualCharacterConfigurator />
+            <VirtualCharacterConfigurator defaultStyle={selectedStyle} />
           </main>
           <Footer />
         </>
