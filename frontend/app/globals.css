@@ -1,23 +1,154 @@
 @import "tailwindcss";
 
+/* ─── Light Mode (Default) ─── */
 :root {
-  --background: #ffffff;
-  --foreground: #121212;
-  --bg-secondary: #fbfbfa;
-  --border-soft: #ebebea;
+  --background: #fdfbf7;
+  --foreground: #171717;
+  --bg-secondary: #f5f3ef;
+  --bg-card: #ffffff;
+  --border-soft: #e5e0da;
+  --text-primary: #171717;
+  --text-secondary: #524f4a;
+  --text-muted: #8c857e;
+  --accent-gold: #9a7b4f;
+  --accent-gold-hover: #7d6340;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glow-opacity: 0.03;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --font-system: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-editorial: "Palatino Linotype", "Book Antiqua", Georgia, serif;
 }
 
+/* ─── Dark Mode ─── */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #f3f4f6;
+  --bg-secondary: #121212;
+  --bg-card: #141414;
+  --border-soft: #1e1e1e;
+  --text-primary: #f3f4f6;
+  --text-secondary: #a3a3a3;
+  --text-muted: #6b6b6b;
+  --accent-gold: #C5A880;
+  --accent-gold-hover: #d7bea0;
+  --glass-bg: rgba(20, 20, 20, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glow-opacity: 0.08;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Tailwind v4 Theme Tokens ─── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-bg-secondary: var(--bg-secondary);
+  --color-bg-card: var(--bg-card);
   --color-border-soft: var(--border-soft);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
-  --font-serif: var(--font-serif), ui-serif, Georgia, serif;
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-gold-hover: var(--accent-gold-hover);
+  --font-sans: var(--font-system);
+  --font-serif: var(--font-editorial);
 }
 
+/* ─── Global Body ─── */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui;
+  font-family: var(--font-system);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ─── Serif header aesthetic styling ─── */
+h1, h2, .font-serif {
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+}
+
+/* ─── Slow-drifting ambient glow paths ─── */
+@keyframes ambient-float {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.1); }
+  66% { transform: translate(-15px, 15px) scale(0.95); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-ambient {
+  animation: ambient-float 25s infinite ease-in-out;
+  filter: blur(120px);
+}
+
+/* ─── Fluted/Ribbed glass refraction effect (adapts to theme) ─── */
+.glass-fluted {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  background-image: linear-gradient(
+    90deg,
+    rgba(128, 128, 128, 0.03) 25%,
+    transparent 25%,
+    transparent 75%,
+    rgba(128, 128, 128, 0.03) 75%
+  );
+  background-size: 8px 100%;
+}
+
+/* ─── Heavy cylindrical ribbed glass (inspired by reference portrait) ─── */
+.glass-fluted-heavy {
+  backdrop-filter: blur(20px) saturate(130%);
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 1.5px,
+    transparent 1.5px,
+    transparent 5px,
+    rgba(0, 0, 0, 0.12) 5px,
+    rgba(0, 0, 0, 0.12) 6.5px
+  );
+  background-size: 6px 100%;
+}
+
+/* ─── Shimmering golden caustics projection effect ─── */
+@keyframes caustics-shimmer {
+  0% {
+    background-position: 0% 50%;
+    filter: blur(14px) brightness(1);
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: blur(18px) brightness(1.25);
+  }
+  100% {
+    background-position: 0% 50%;
+    filter: blur(14px) brightness(1);
+  }
+}
+
+.caustics-layer {
+  background: radial-gradient(
+    circle at 50% 40%,
+    rgba(197, 168, 128, 0.35) 0%,
+    rgba(217, 119, 6, 0.22) 30%,
+    rgba(139, 92, 26, 0.1) 60%,
+    transparent 90%
+  );
+  background-size: 180% 180%;
+  animation: caustics-shimmer 8s infinite ease-in-out;
+  mix-blend-mode: color-dodge;
+}
+
+
+/* ─── Theme Transition Smoothing ─── */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+/* Exclude elements that already have their own transitions */
+.animate-ambient, [data-no-theme-transition] {
+  transition: none !important;
 }
