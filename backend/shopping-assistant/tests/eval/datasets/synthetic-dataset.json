@@ -1,0 +1,46 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "styling_luxury",
+      "prompt": "I need a silent luxury outfit recommendation for an upscale dinner.",
+      "expected_intent": "styling",
+      "expected_flagship_ids": [2001, 2004]
+    },
+    {
+      "eval_case_id": "styling_streetwear",
+      "prompt": "Show me a cool streetwear outfit with a heavy hoodie.",
+      "expected_intent": "styling",
+      "expected_flagship_ids": [2002, 2004]
+    },
+    {
+      "eval_case_id": "styling_techwear",
+      "prompt": "Suggest a technical modular techwear look.",
+      "expected_intent": "styling",
+      "expected_flagship_ids": [2003, 2005]
+    },
+    {
+      "eval_case_id": "tryon_drape_knits",
+      "prompt": "Please drape the tapestry knit 2001 and corduroy pants 2004.",
+      "expected_intent": "styling",
+      "expected_tryon_ids": [2001, 2004]
+    },
+    {
+      "eval_case_id": "hitl_return_nonexistent",
+      "prompt": "I want to request a refund for order 9999.",
+      "expected_intent": "order_support",
+      "expected_response_contains": "not found"
+    },
+    {
+      "eval_case_id": "hitl_return_initiate",
+      "prompt": "Can you help me return my order 1001?",
+      "expected_intent": "order_support",
+      "expected_response_contains": "awaiting_return_approval"
+    },
+    {
+      "eval_case_id": "order_status_check",
+      "prompt": "What is the status of my order 1001?",
+      "expected_intent": "order_support",
+      "expected_response_contains": "Order ID:"
+    }
+  ]
+}
