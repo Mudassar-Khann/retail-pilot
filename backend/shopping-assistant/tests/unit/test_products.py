@@ -5,9 +5,9 @@ os.environ["DATABASE_URL"] = "sqlite:///test_shopping_assistant.db"
 
 import pytest
 from app.config import Config
-from app.products.models import Product
 from app.products.repository import ProductRepository
 from app.products.service import ProductService, ProductSearchResult
+from app.products.seed import CATALOG_SEED_VERSION
 
 @pytest.fixture(scope="function")
 def test_repo(tmp_path):
@@ -103,3 +103,37 @@ def test_search_empty_results(test_service):
     res = test_service.search_catalog({"keyword": "NonexistentBrandOrItemXYZ"})
     assert res.total_count == 0
     assert len(res.products) == 0
+
+def test_curated_keyword_queries(test_service):
+    """Verify Sprint 2.1 editorial products are searchable by descriptive keywords."""
+    floral = test_service.search_catalog({"keyword": "floral corduroy jacket"})
+    assert any(p.id == 2008 for p in floral.products)
+
+    tapestry = test_service.search_catalog({"keyword": "tapestry"})
+    assert any(p.id in {2001, 2004, 2008, 2009} for p in tapestry.products)
+
+    embroidery = test_service.search_catalog({"keyword": "embroidery"})
+    assert any(p.id == 2006 for p in embroidery.products)
+
+def test_catalog_seed_version_forces_reseed(test_repo):
+    """Verify a stale seed version triggers a catalog rebuild on next repository init."""
+    with test_repo._get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO app_metadata (key, value)
+            VALUES ('catalog_seed_version', 'stale-version')
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value
+            """
+        )
+        conn.execute("DELETE FROM products WHERE id = 2008")
+        conn.commit()
+
+    refreshed_repo = ProductRepository()
+    refreshed = refreshed_repo.get_by_id(2008)
+
+    assert refreshed is not None
+    with refreshed_repo._get_connection() as conn:
+        version = conn.execute(
+            "SELECT value FROM app_metadata WHERE key = 'catalog_seed_version'"
+        ).fetchone()[0]
+    assert version == CATALOG_SEED_VERSION
