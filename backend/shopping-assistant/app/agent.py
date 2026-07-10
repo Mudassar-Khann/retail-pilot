@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import os
+os.environ["OTEL_SDK_DISABLED"] = "true"
 import google.auth
 from google.adk.agents import Agent
 from google.adk.apps import App
@@ -29,6 +30,8 @@ Config.validate()
 # Set up application environment defaults
 try:
     _, project_id = google.auth.default()
+    if not project_id:
+        project_id = Config.App.GOOGLE_CLOUD_PROJECT or "mock-project-id"
 except Exception:
     project_id = Config.App.GOOGLE_CLOUD_PROJECT or "mock-project-id"
 
