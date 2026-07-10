@@ -295,11 +295,7 @@ export function GarmentOverlayArt({
   const src = `/images/products/${product.id}.png`;
 
   if (hasError) {
-    return (
-      <div className={`${className || ""} pointer-events-none`} style={style}>
-        {renderCuratedGarment(product, "overlay") || renderGenericOverlay(product, slot)}
-      </div>
-    );
+    return null;
   }
 
   return (
