@@ -170,7 +170,7 @@ function InteractiveProductCard({
   );
 }
 
-export default function VirtualCharacterConfigurator() {
+export default function VirtualCharacterConfigurator({ defaultStyle }: { defaultStyle?: string | null }) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [activeOrderId, setActiveOrderId] = useState<number | null>(null);
   const [products, setProducts] = useState<ClothingItem[]>([]);
@@ -192,6 +192,23 @@ export default function VirtualCharacterConfigurator() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [aestheticRating, setAestheticRating] = useState<string>("Incomplete Ensemble");
   const [activeAesthetic, setActiveAesthetic] = useState<AestheticType>("all");
+
+  // Sync with homepage editorial style selections
+  useEffect(() => {
+    if (!defaultStyle) return;
+
+    const styleLower = defaultStyle.toLowerCase();
+    if (styleLower.includes("old money") || styleLower.includes("minimalist")) {
+      setActiveCollection("QUIET LUXURY Essentials");
+      setActiveAesthetic("luxury");
+    } else if (styleLower.includes("streetwear") || styleLower.includes("korean")) {
+      setActiveCollection("SARTORIAL SLOUCH");
+      setActiveAesthetic("streetwear");
+    } else if (styleLower.includes("techwear")) {
+      setActiveCollection("SYSTEM TECHWEAR");
+      setActiveAesthetic("techwear");
+    }
+  }, [defaultStyle]);
 
   const handleSelectAesthetic = (aesthetic: AestheticType) => {
     if (aesthetic === activeAesthetic) {
