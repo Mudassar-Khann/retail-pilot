@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 
 export interface StyleScoreResult {
   compatibility_score: number;
@@ -45,7 +45,7 @@ export default function AestheticScore({ score, isLoading }: AestheticScoreProps
               }}
             />
             {/* Middle (percentage) ring: animated with spring transition */}
-            <motion.circle
+            <m.circle
               cx="47"
               cy="47"
               r={GAUGE_RADIUS}
@@ -110,7 +110,7 @@ export default function AestheticScore({ score, isLoading }: AestheticScoreProps
 
       <AnimatePresence>
         {isCritiqueOpen && !isLoading && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
@@ -121,7 +121,7 @@ export default function AestheticScore({ score, isLoading }: AestheticScoreProps
             className="absolute inset-x-3 bottom-[calc(100%+12px)] z-50 rounded-[18px] border border-[var(--foreground)]/18 bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.08))] p-3 text-[10px] leading-relaxed text-[#F2ECE2] shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur-2xl"
           >
             {score.critique}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

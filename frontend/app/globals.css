@@ -1,73 +1,61 @@
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap');
 @import "tailwindcss";
-
-/* ─── Light Mode (Default) ─── */
-:root {
-  --background: #fdfbf7;
-  --foreground: #171717;
-  --bg-secondary: #f5f3ef;
-  --bg-card: #ffffff;
-  --border-soft: #e5e0da;
-  --text-primary: #171717;
-  --text-secondary: #524f4a;
-  --text-muted: #8c857e;
-  --accent-gold: #9a7b4f;
-  --accent-gold-hover: #7d6340;
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --glow-opacity: 0.03;
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
-  --font-system: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --font-editorial: "Palatino Linotype", "Book Antiqua", Georgia, serif;
-}
-
-/* ─── Dark Mode ─── */
-.dark {
-  --background: #0a0a0a;
-  --foreground: #f3f4f6;
-  --bg-secondary: #121212;
-  --bg-card: #141414;
-  --border-soft: #1e1e1e;
-  --text-primary: #f3f4f6;
-  --text-secondary: #a3a3a3;
-  --text-muted: #6b6b6b;
-  --accent-gold: #C5A880;
-  --accent-gold-hover: #d7bea0;
-  --glass-bg: rgba(20, 20, 20, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.06);
-  --glow-opacity: 0.08;
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
-}
+@import "../styles/tokens.css";
+@import "@fontsource/jetbrains-mono";
 
 /* ─── Tailwind v4 Theme Tokens ─── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-bg-secondary: var(--bg-secondary);
-  --color-bg-card: var(--bg-card);
+  --color-background: var(--bg-void);
+  --color-foreground: var(--text-primary);
+
+  --color-bg-void: var(--bg-void);
+  --color-bg-surface-0: var(--bg-surface-0);
+  --color-bg-surface-1: var(--bg-surface-1);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-glass: var(--bg-glass);
+  --color-bg-overlay: var(--bg-overlay);
+
   --color-border-soft: var(--border-soft);
+  --color-border-glass: var(--border-glass);
+
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
+
   --color-accent-gold: var(--accent-gold);
   --color-accent-gold-hover: var(--accent-gold-hover);
-  --font-sans: var(--font-system);
-  --font-serif: var(--font-editorial);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-neon: var(--accent-neon);
+
+  --font-sans: var(--font-ui);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-technical);
 }
 
 /* ─── Global Body ─── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-system);
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
 }
 
-/* ─── Serif header aesthetic styling ─── */
-h1, h2, .font-serif {
+/* ─── Serif/Display header aesthetic styling ─── */
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
   color: var(--text-primary);
   letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+/* ─── Technical Labels ─── */
+.technical-label {
+  font-family: var(--font-technical);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent-cyan);
 }
 
 /* ─── Slow-drifting ambient glow paths ─── */
@@ -79,15 +67,16 @@ h1, h2, .font-serif {
 }
 
 .animate-ambient {
-  animation: ambient-float 25s infinite ease-in-out;
+  animation: ambient-float 35s infinite var(--ease-fluid);
   filter: blur(120px);
+  will-change: transform;
 }
 
 /* ─── Fluted/Ribbed glass refraction effect (adapts to theme) ─── */
 .glass-fluted {
-  background: var(--glass-bg);
+  background: var(--bg-glass);
   backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-glass);
   background-image: linear-gradient(
     90deg,
     rgba(128, 128, 128, 0.03) 25%,
@@ -96,21 +85,6 @@ h1, h2, .font-serif {
     rgba(128, 128, 128, 0.03) 75%
   );
   background-size: 8px 100%;
-}
-
-/* ─── Heavy cylindrical ribbed glass (inspired by reference portrait) ─── */
-.glass-fluted-heavy {
-  backdrop-filter: blur(20px) saturate(130%);
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.03) 0px,
-    rgba(255, 255, 255, 0.03) 1.5px,
-    transparent 1.5px,
-    transparent 5px,
-    rgba(0, 0, 0, 0.12) 5px,
-    rgba(0, 0, 0, 0.12) 6.5px
-  );
-  background-size: 6px 100%;
 }
 
 /* ─── Shimmering golden caustics projection effect ─── */
@@ -142,30 +116,101 @@ h1, h2, .font-serif {
   mix-blend-mode: color-dodge;
 }
 
-
-/* ─── Pulsing Neon Green/Lime Aura drop-shadow glow (inspired by Nike reference) ─── */
-@keyframes neon-aurora-glow {
-  0% {
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 3px rgba(204, 255, 0, 0.45)) drop-shadow(0 0 10px rgba(16, 185, 129, 0.25));
-  }
-  50% {
-    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 7px rgba(204, 255, 0, 0.75)) drop-shadow(0 0 20px rgba(16, 185, 129, 0.45));
-  }
-  100% {
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 3px rgba(204, 255, 0, 0.45)) drop-shadow(0 0 10px rgba(16, 185, 129, 0.25));
-  }
-}
-
-.neon-garment-glow {
-  animation: neon-aurora-glow 4s infinite ease-in-out;
-}
-
 /* ─── Theme Transition Smoothing ─── */
 *, *::before, *::after {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+  transition: background-color 0.2s var(--ease-fluid), border-color 0.2s var(--ease-fluid), color 0.15s var(--ease-fluid);
 }
 
 /* Exclude elements that already have their own transitions */
 .animate-ambient, [data-no-theme-transition] {
   transition: none !important;
+}
+
+/* ─── Accessibility: Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-void);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-elevated);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-soft);
+}
+
+/* Ensure the background overlay is extremely subtle so the video background shines through clearly */
+:root {
+  --bg-overlay: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ─── HUD Premium Editorial Styling ─── */
+/* The Hero Card: Curated Piece (First Card) */
+.hud-editorial-group > div:first-child {
+  background: rgba(10, 10, 10, 0.18) !important;
+  backdrop-filter: blur(40px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.03) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important; /* Extremely thin top highlight */
+  border-radius: 3px !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25) !important;
+  padding: 1.25rem !important;
+  margin-bottom: 1.5rem !important;
+  transition: border-color 0.4s ease, background-color 0.4s ease !important;
+}
+
+.hud-editorial-group > div:first-child:hover {
+  border-color: rgba(197, 168, 128, 0.1) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Supporting Cards: Specifications & Colours (Subsequent Cards) */
+.hud-editorial-group > div:not(:first-child) {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Reduce visual noise inside panels */
+.hud-editorial-group .text-\[var\(--accent-cyan\)\],
+.hud-editorial-group .text-\[var\(--accent-neon\)\] {
+  color: var(--text-secondary) !important; /* Mute bright colors to secondary */
+}
+
+/* Make tech headers feel high-end */
+.hud-editorial-group span.font-mono {
+  font-family: var(--font-technical) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.25em !important;
+  color: var(--text-muted) !important;
+}
+
+/* Radar/status progress bars should use elegant gold and muted gray */
+.hud-editorial-group .bg-\[var\(--accent-cyan\)\],
+.hud-editorial-group .bg-\[var\(--accent-neon\)\] {
+  background-color: var(--text-muted) !important;
+}
+
+.hud-editorial-group .bg-\[var\(--accent-gold\)\] {
+  background-color: var(--accent-gold) !important;
+  opacity: 0.85;
 }

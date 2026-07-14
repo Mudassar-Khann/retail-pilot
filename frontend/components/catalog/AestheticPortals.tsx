@@ -33,8 +33,8 @@ const PORTALS: PortalCard[] = [
   },
   {
     id: "techwear",
-    title: "SYSTEM TECHWEAR",
-    subtitle: "COOL REFRACTIVE MODULARITY",
+    title: "TECHNICAL APPAREL",
+    subtitle: "REFRACTIVE WEATHERPROOF SHIELDS",
     glowColor: "shadow-[0_0_20px_rgba(6,182,212,0.2)] border-cyan-500/60",
     gradient: "from-cyan-950/20 via-[var(--bg-secondary)]/60 to-emerald-950/20"
   }
@@ -45,7 +45,7 @@ export default function AestheticPortals({ activeAesthetic, onSelectAesthetic }:
     <div className="w-full space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-[8px] font-mono tracking-[0.25em] text-[var(--accent-gold)] uppercase">
-          AESTHETIC_PORTALS
+          STYLE CURATIONS
         </span>
         {activeAesthetic !== "all" && (
           <button
@@ -60,22 +60,22 @@ export default function AestheticPortals({ activeAesthetic, onSelectAesthetic }:
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {PORTALS.map((portal) => {
           const isActive = activeAesthetic === portal.id;
-          
+
           return (
             <div
               key={portal.id}
               onClick={() => onSelectAesthetic(portal.id)}
               className={`group relative h-24 rounded-md overflow-hidden border cursor-pointer transition-all duration-500 flex flex-col justify-end p-4 bg-gradient-to-br ${portal.gradient} ${
-                isActive 
-                  ? portal.glowColor 
+                isActive
+                  ? portal.glowColor
                   : "border-[var(--border-soft)]/80 hover:border-[var(--text-muted)]/80 shadow-sm"
               }`}
             >
               {/* Refractive background lines */}
               <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.008)_1px,transparent_1px)] bg-[size:10px_100%] pointer-events-none select-none" />
-              
+
               {/* Zooming dark-tinted overlay on hover */}
-              <div 
+              <div
                 className="absolute inset-0 bg-[var(--background)]/60 group-hover:bg-[var(--background)]/50 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] scale-100 group-hover:scale-105 pointer-events-none"
               />
 

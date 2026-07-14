@@ -1,122 +1,130 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { ShoppingBag, Eye, Heart, ArrowUpRight } from "lucide-react";
+import { useNavigationStore } from "@/store/navigationStore";
+import { useProductStore } from "@/store/productStore";
+import { GlassSurface } from "@/components/ui/glass-surface";
+import { Surface } from "@/components/ui/surface";
+import { cn } from "@/lib/utils";
 
-export interface ProductType {
-  id: number;
+export interface UnifiedProduct {
+  id?: number;
+  product_id?: number;
   name: string;
-  description: string;
-  brand: string;
-  category: string;
-  style_tags: string[];
-  color: string;
-  size_options: string[];
+  brand?: string;
+  category?: string;
   price: number;
-  gender: string;
-  season: string;
+  thumbnail?: string;
+  image_path?: string;
+  availability?: string;
+  short_metadata?: string;
+  reason?: string;
+  match_label?: string;
+  description?: string;
+  style_tags?: string[];
+  color?: string;
+  size_options?: string[];
+  gender?: string;
+  season?: string;
+  material?: string;
+  fit?: string;
+  origin?: string;
 }
 
 interface ProductCardProps {
-  product: ProductType;
+  product: UnifiedProduct;
+  variant?: "recommendation" | "gallery" | "hero" | "wishlist" | "compact" | "comparison";
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const [transformStyle, setTransformStyle] = useState<string>("perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
+export function ProductCard({ product, variant = "gallery" }: ProductCardProps) {
+  const { setPath } = useNavigationStore();
+  const { toggleSaved, savedProducts } = useProductStore();
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    
-    const mouseX = e.clientX - rect.left - width / 2;
-    const mouseY = e.clientY - rect.top - height / 2;
-    
-    const rotateX = (-mouseY / (height / 2)) * 5;
-    const rotateY = (mouseX / (width / 2)) * 5;
+  const pId = product.id || product.product_id;
+  const pImage = product.thumbnail || product.image_path;
+  const isSaved = savedProducts.includes(pId as number);
 
-    setTransformStyle(`perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setTransformStyle("perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
-  };
-
-  const getShadowColor = (tags: string[] = []) => {
-    const tagStr = tags.join(" ").toLowerCase();
-    if (tagStr.includes("old money") || tagStr.includes("quiet luxury")) return "rgba(197, 168, 128, 0.22)";
-    if (tagStr.includes("techwear")) return "rgba(217, 119, 6, 0.15)";
-    if (tagStr.includes("streetwear")) return "rgba(139, 30, 45, 0.15)";
-    return "rgba(197, 168, 128, 0.12)";
-  };
-
-  const shadowColor = getShadowColor(product.style_tags);
-
-  return (
-    <div
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={handleMouseLeave}
-      className="group border border-[var(--border-soft)]/80 hover:border-[var(--accent-gold)]/40 bg-[var(--bg-secondary)] rounded-md flex flex-col justify-between will-change-transform transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden"
-      style={{
-        transform: transformStyle,
-        boxShadow: isHovered ? `0 16px 40px ${shadowColor}` : "none",
-      }}
-    >
-      {/* Product Image Panel with tall 2/3 ratio */}
-      <div className="relative aspect-[2/3] bg-[var(--background)]/40 border-b border-[var(--bg-secondary)] flex items-center justify-center p-6 overflow-hidden">
-        {/* Placeholder Sketch/Outline */}
-        <div className="text-[var(--text-muted)] group-hover:scale-[1.03] transition-transform duration-700 flex flex-col items-center">
-          <svg className="w-20 h-28" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2L4 5v6c0 5.25 3.4 10.2 8 11.5 4.6-1.3 8-6.25 8-11.5V5l-8-3zm0 9H6V7h6v4z" />
-          </svg>
-          <span className="text-[8px] tracking-widest uppercase font-semibold text-[var(--text-secondary)] mt-2 block">
-            {product.category}
-          </span>
+  // Compact variant for sidebars or tight grid
+  if (variant === "compact") {
+    return (
+      <Surface layer="1" className="flex items-center gap-4 p-3 rounded-xl hover:bg-[var(--bg-elevated)] transition-colors border border-[var(--border-soft)]">
+        <div className="w-16 h-16 rounded-md overflow-hidden bg-black/5 flex-shrink-0">
+          {pImage && <img src={pImage} alt={product.name} className="w-full h-full object-cover" />}
         </div>
-
-        {/* Season & Gender Tags */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-          <Badge variant="secondary" className="bg-[var(--background)]/90 backdrop-blur-sm text-[8px] border-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-[2px]">
-            {product.gender}
-          </Badge>
-          <Badge variant="outline" className="bg-[var(--background)]/90 backdrop-blur-sm text-[8px] border-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-[2px] font-normal">
-            {product.season}
-          </Badge>
+        <div className="flex-1 min-w-0">
+          <Link href={`/product/${pId}`} onClick={() => setPath(`/product/${pId}`)} className="block truncate text-sm font-medium hover:text-[var(--accent-gold)]">
+            {product.name}
+          </Link>
+          <p className="text-xs text-[var(--text-secondary)] font-mono mt-1">${product.price.toFixed(2)}</p>
         </div>
+      </Surface>
+    );
+  }
 
-        {/* Sizing Details Slide-Up Panel on Hover (No circular bag button) */}
-        <div className="absolute inset-x-0 bottom-0 bg-[var(--background)]/95 backdrop-blur-sm py-3.5 px-4 border-t border-[var(--bg-secondary)] translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-between z-15 shadow-sm">
-          <span className="text-[8px] font-semibold tracking-[0.18em] text-[var(--text-secondary)] uppercase">Sizes</span>
-          <span className="text-[10px] text-[var(--text-primary)] font-mono tracking-widest">{product.size_options.join("  ")}</span>
+  // Recommendation variant (Stylist specific)
+  if (variant === "recommendation") {
+    return (
+      <GlassSurface variant="smooth" className="relative flex flex-col overflow-hidden rounded-[2rem] group transition-all duration-700 hover:shadow-[0_20px_40px_rgba(197,168,128,0.15)]">
+        <div className="relative aspect-[4/5] bg-black/5 flex items-center justify-center overflow-hidden">
+          {pImage && <img src={pImage} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />}
+          {product.match_label && (
+            <div className="absolute top-4 left-4 z-10">
+              <Badge className="bg-[var(--accent-gold)]/90 backdrop-blur-md text-white technical-label border-none px-2.5 py-1">
+                {product.match_label}
+              </Badge>
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* Info panel */}
-      <div className="p-4 space-y-2.5">
-        <div className="flex justify-between items-start gap-2">
+        <div className="p-5 flex flex-col gap-3 flex-1">
           <div>
-            <p className="text-[9px] text-[var(--text-secondary)] uppercase tracking-[0.18em] font-semibold">{product.brand}</p>
-            <h3 className="text-xs font-normal text-[var(--text-primary)] tracking-wide mt-1 line-clamp-1 group-hover:text-[#F4EFE6] transition-colors">{product.name}</h3>
+            <p className="technical-label mb-1">{product.short_metadata || product.category || "Apparel"}</p>
+            <Link href={`/product/${pId}`} onClick={() => setPath(`/product/${pId}`)} className="block group-hover:text-[var(--accent-gold)] transition-colors">
+              <h3 className="text-sm font-medium truncate">{product.name}</h3>
+            </Link>
+            <p className="font-mono text-xs text-[var(--text-secondary)] mt-1.5">${product.price.toFixed(2)}</p>
           </div>
-          <span className="text-xs font-semibold text-[var(--accent-gold)] mt-1">${product.price.toFixed(2)}</span>
+          {product.reason && (
+            <div className="mt-auto">
+              <div className="w-4 h-[1px] bg-[var(--accent-gold)] mb-2" />
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic line-clamp-2">
+                "{product.reason}"
+              </p>
+            </div>
+          )}
         </div>
+      </GlassSurface>
+    );
+  }
 
-        {/* Color details */}
-        <div className="flex items-center text-[9px] text-[var(--text-secondary)] uppercase tracking-widest pt-2 border-t border-[var(--bg-secondary)]">
-          <span>Color: {product.color}</span>
-        </div>
+  // Default / Gallery variant
+  return (
+    <Surface layer="1" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} className="relative flex flex-col rounded-2xl overflow-hidden group transition-all duration-500 border border-[var(--border-soft)] hover:border-[var(--accent-gold)]/30 bg-black/20">
+      <div className="p-3">
+        <div className="relative aspect-[3/4] bg-neutral-950/40 rounded-xl overflow-hidden border border-white/5">
+          {pImage ? (
+            <img src={pImage} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full">
+              <span className="technical-label opacity-40">NO IMAGE</span>
+            </div>
+          )}
 
-        {/* Style Tag Badges */}
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {product.style_tags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-[8px] px-2 border-[var(--border-soft)] rounded-[2px] font-normal">
-              {tag}
-            </Badge>
-          ))}
+          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onClick={() => toggleSaved(pId as number)} className="w-8 h-8 rounded-full bg-[var(--bg-overlay)] backdrop-blur-md flex items-center justify-center hover:scale-110 transition-transform">
+              <Heart size={14} className={isSaved ? "fill-rose-500 text-rose-500" : "text-white"} />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+      <div className="p-4 flex flex-col gap-1">
+        <p className="technical-label">{product.brand || "RetailPilot"}</p>
+        <Link href={`/product/${pId}`} onClick={() => setPath(`/product/${pId}`)} className="block">
+          <h3 className="text-sm font-medium line-clamp-1 group-hover:text-[var(--accent-gold)] transition-colors">{product.name}</h3>
+        </Link>
+        <p className="font-mono text-xs text-[var(--text-secondary)]">${product.price.toFixed(2)}</p>
+      </div>
+    </Surface>
   );
 }

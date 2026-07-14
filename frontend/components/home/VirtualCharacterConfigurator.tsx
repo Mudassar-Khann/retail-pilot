@@ -65,10 +65,10 @@ function InteractiveProductCard({
     const rect = card.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
-    
+
     const mouseX = e.clientX - rect.left - width / 2;
     const mouseY = e.clientY - rect.top - height / 2;
-    
+
     // Limit rotation to 5deg
     const rotateX = (-mouseY / (height / 2)) * 5;
     const rotateY = (mouseX / (width / 2)) * 5;
@@ -120,13 +120,13 @@ function InteractiveProductCard({
       </div>
 
       {/* Inline Vector Silhouette Fallback */}
-      <div 
+      <div
         onClick={() => onToggleProduct(product)}
         className="flex-1 flex items-center justify-center py-2 cursor-pointer"
       >
-        <ProductSilhouette 
+        <ProductSilhouette
           product={product}
-          className="w-20 h-20 opacity-20 group-hover:opacity-35 transition-all duration-300" 
+          className="w-20 h-20 opacity-20 group-hover:opacity-35 transition-all duration-300"
         />
       </div>
 
@@ -152,7 +152,7 @@ function InteractiveProductCard({
           <Eye size={10} />
           Details
         </button>
-        
+
         <div className="flex items-center gap-2">
           <button
             onClick={() => onToggleProduct(product)}
@@ -180,13 +180,13 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
     bottom: MOCK_BOTTOMS[1], // Loose Fit Distressed Jeans
     shoes: MOCK_SHOES[1] // Minimalist White Leather Sneaker
   });
-  
+
   const [gender, setGender] = useState<'male' | 'female'>('male');
   const [activeSlot, setActiveSlot] = useState<string | null>(null);
-  
+
   // Collections Switcher Active State
   const [activeCollection, setActiveCollection] = useState<string>("ALL");
-  
+
   // Immersive Product Details Drawer State
   const [selectedDetailProduct, setSelectedDetailProduct] = useState<ClothingItem | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -205,7 +205,7 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
       setActiveCollection("SARTORIAL SLOUCH");
       setActiveAesthetic("streetwear");
     } else if (styleLower.includes("techwear")) {
-      setActiveCollection("SYSTEM TECHWEAR");
+      setActiveCollection("TECHNICAL APPAREL");
       setActiveAesthetic("techwear");
     }
   }, [defaultStyle]);
@@ -234,7 +234,7 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
       flagshipOuterwearId = 2005;
     }
 
-    const needsDrape = 
+    const needsDrape =
       (flagshipTopId && selection.top?.id !== flagshipTopId) ||
       (flagshipBottomId && selection.bottom?.id !== flagshipBottomId) ||
       (flagshipOuterwearId && selection.outerwear?.id !== flagshipOuterwearId);
@@ -270,7 +270,7 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
               : Array.isArray(p.style_tags)
                 ? p.style_tags
                 : [];
-            
+
             const sizeOptionsArray = typeof p.size_options === "string"
               ? p.size_options.split(",")
               : Array.isArray(p.size_options)
@@ -301,7 +301,7 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
       } catch (err) {
         console.warn("Backend offline or failed to fetch products. Using mock fallback.", err);
       }
-      
+
       // Fallback to local mock data
       setProducts([
         ...MOCK_TOPS,
@@ -393,7 +393,7 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
   }, 0);
 
   // Collections Categories Switcher list
-  const collections = ["ALL", "SYSTEM TECHWEAR", "QUIET LUXURY Essentials", "SARTORIAL SLOUCH"];
+  const collections = ["ALL", "TECHNICAL APPAREL", "QUIET LUXURY Essentials", "SARTORIAL SLOUCH"];
 
   // Filtering products by Curated Collection & Active Aesthetic
   const filteredProducts = products.filter(p => {
@@ -401,21 +401,21 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
     if (activeAesthetic !== "all") {
       const tags = (p.style_tags || []).map(t => t.toLowerCase());
       const colName = (p.collection_name || "").toLowerCase();
-      
+
       if (activeAesthetic === "luxury") {
-        const isLux = p.id === 2001 || p.id === 2004 || 
-                      colName.includes("luxury") || 
-                      tags.includes("quiet luxury") || 
+        const isLux = p.id === 2001 || p.id === 2004 ||
+                      colName.includes("luxury") ||
+                      tags.includes("quiet luxury") ||
                       tags.includes("old money");
         if (!isLux) return false;
       } else if (activeAesthetic === "streetwear") {
-        const isStreet = p.id === 2002 || p.id === 2004 || 
-                        colName.includes("streetwear") || 
+        const isStreet = p.id === 2002 || p.id === 2004 ||
+                        colName.includes("streetwear") ||
                         tags.includes("streetwear");
         if (!isStreet) return false;
       } else if (activeAesthetic === "techwear") {
-        const isTech = p.id === 2003 || p.id === 2005 || 
-                      colName.includes("techwear") || 
+        const isTech = p.id === 2003 || p.id === 2005 ||
+                      colName.includes("techwear") ||
                       tags.includes("techwear");
         if (!isTech) return false;
       }
@@ -423,19 +423,19 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
 
     // 2. Then filter by category collection selector
     if (activeCollection === "ALL") return true;
-    
+
     const pCol = p.collection_name?.toUpperCase() || "";
     const activeCol = activeCollection.toUpperCase();
-    
-    if (activeCol.includes("TECHWEAR")) return pCol.includes("TECHWEAR");
+
+    if (activeCol.includes("TECHWEAR") || activeCol.includes("TECHNICAL")) return pCol.includes("TECHWEAR") || pCol.includes("TECHNICAL");
     if (activeCol.includes("QUIET LUXURY")) return pCol.includes("QUIET LUXURY");
     if (activeCol.includes("SLOUCH")) return pCol.includes("SLOUCH");
-    
+
     return true;
   });
 
   const getCollectionBannerStyle = () => {
-    if (activeCollection === "SYSTEM TECHWEAR") {
+    if (activeCollection === "TECHNICAL APPAREL") {
       return "from-amber-600/30 via-[var(--background)] to-[var(--background)] border-amber-500/20 text-amber-200";
     }
     if (activeCollection.includes("QUIET LUXURY")) {
@@ -458,7 +458,7 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
   return (
     <section id="character" className="py-20 bg-[var(--background)] border-b border-[var(--border-soft)] relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
-        
+
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-3">
@@ -494,10 +494,10 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
 
         {/* 60/40 Split Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          
+
           {/* Left Column (60% width) - Editorial Product Catalog */}
           <div className="lg:col-span-7 space-y-8">
-            
+
             {/* Aesthetic moodboard portals */}
             <AestheticPortals
               activeAesthetic={activeAesthetic}
@@ -522,7 +522,7 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
               {filteredProducts.map(p => {
                 const slot = getProductSlot(p.category);
                 const isSelected = slot && selection[slot]?.id === p.id;
-                
+
                 return (
                   <InteractiveProductCard
                     key={p.id}
@@ -542,7 +542,7 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
           {/* Right Column (40% width) - Sticky Mannequin Viewer */}
           <div className="lg:col-span-5 lg:sticky lg:top-8 space-y-6 relative">
             {/* Background Layering: Ambient blurs */}
-            <div 
+            <div
               className="absolute -inset-10 pointer-events-none z-0 rounded-full"
               data-no-theme-transition
               style={{
@@ -553,7 +553,7 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
                 transition: "color 1.5s ease-in-out, filter 1.5s ease-in-out"
               }}
             />
-            <div 
+            <div
               className="absolute -top-20 -right-20 w-96 h-96 pointer-events-none z-0 rounded-full animate-ambient"
               data-no-theme-transition
               style={{
@@ -564,16 +564,16 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
                 transition: "color 1.5s ease-in-out, filter 1.5s ease-in-out"
               }}
             />
-            
+
             <div className="border border-[var(--border-soft)]/80 hover:border-[var(--accent-gold)]/40 p-6 glass-fluted rounded-md relative z-10" style={{ boxShadow: "var(--shadow-card-hover)" }}>
               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[var(--border-soft)]" />
               <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[var(--border-soft)]" />
-              
+
               <div className="flex flex-col items-center gap-6">
                  {/* 1. Mannequin Layer */}
-                <VirtualModel 
-                  selection={selection} 
-                  activeSlot={activeSlot} 
+                <VirtualModel
+                  selection={selection}
+                  activeSlot={activeSlot}
                   gender={gender}
                   onGenderChange={setGender}
                   onStyleScoreChange={(score) => setAestheticRating(score.alignment_rating)}
@@ -611,8 +611,8 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
                 </div>
 
                 {/* 3. Look Saver Widget */}
-                <LookSaver 
-                  selection={selection} 
+                <LookSaver
+                  selection={selection}
                   allProducts={products}
                   totalPrice={totalPrice}
                   aestheticRating={aestheticRating}
@@ -621,8 +621,8 @@ export default function VirtualCharacterConfigurator({ defaultStyle }: { default
 
                 {/* 4. AI Stylist Chat pane */}
                 <div className="w-full">
-                  <StylistChat 
-                    onDrapeOutfit={handleDrapeOutfit} 
+                  <StylistChat
+                    onDrapeOutfit={handleDrapeOutfit}
                     onExternalDrape={handleExternalDrape}
                     activeOrderId={activeOrderId}
                     products={products}

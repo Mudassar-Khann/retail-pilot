@@ -274,7 +274,7 @@ export function GarmentOverlayArt({
   const top = product.overlay_top_percent !== undefined && product.overlay_top_percent !== null
     ? product.overlay_top_percent
     : (slot === "bottom" ? 48 : slot === "outerwear" ? 18 : slot === "shoes" ? 86 : 20);
-    
+
   const left = product.overlay_left_percent !== undefined && product.overlay_left_percent !== null
     ? product.overlay_left_percent
     : (slot === "bottom" ? 24 : slot === "outerwear" ? 20 : slot === "shoes" ? 26 : 22);
@@ -292,9 +292,9 @@ export function GarmentOverlayArt({
     objectFit: "contain" as const,
   };
 
-  const src = `/images/products/${product.id}.png`;
+  const src = product.image_path;
 
-  if (hasError) {
+  if (hasError || !src) {
     return null;
   }
 

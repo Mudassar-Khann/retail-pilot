@@ -37,7 +37,7 @@ export default function CheckoutModal({ isOpen, onClose, selection, onPurchaseSu
 
   const handlePurchase = async () => {
     setStep("processing");
-    
+
     // Simulate transaction delay
     await new Promise(resolve => setTimeout(resolve, 1200));
 
@@ -70,9 +70,9 @@ export default function CheckoutModal({ isOpen, onClose, selection, onPurchaseSu
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop blur */}
-      <div 
+      <div
         onClick={onClose}
-        className="absolute inset-0 bg-[var(--background)]/60 backdrop-blur-sm transition-opacity duration-300" 
+        className="absolute inset-0 bg-[var(--background)]/60 backdrop-blur-sm transition-opacity duration-300"
       />
 
       {/* Main Card */}
@@ -80,15 +80,15 @@ export default function CheckoutModal({ isOpen, onClose, selection, onPurchaseSu
         {/* Border highlights */}
         <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[var(--border-soft)]" />
         <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[var(--border-soft)]" />
-        
+
         {/* Header */}
         <div className="flex justify-between items-center border-b border-[var(--bg-secondary)] pb-3">
           <span className="text-[8px] font-mono tracking-[0.2em] text-[var(--text-secondary)] uppercase">
-            SECURE_CHECKOUT
+            Secure Checkout
           </span>
           {step !== "processing" && (
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
             >
               <X size={14} />
@@ -104,7 +104,7 @@ export default function CheckoutModal({ isOpen, onClose, selection, onPurchaseSu
               <span className="text-[7px] font-mono text-[var(--text-secondary)] uppercase tracking-widest block">
                 Order Items Summary
               </span>
-              
+
               <div className="space-y-2 border-b border-[var(--bg-secondary)] pb-3">
                 {selection.top && (
                   <div className="flex justify-between text-xs font-light text-[var(--text-primary)]">
@@ -146,7 +146,7 @@ export default function CheckoutModal({ isOpen, onClose, selection, onPurchaseSu
               className="w-full bg-lime-500 hover:bg-lime-400 text-[var(--background)] font-bold tracking-widest text-[8px] uppercase py-4 rounded-[2px] cursor-pointer flex items-center justify-center gap-1.5"
             >
               <CreditCard size={11} />
-              [ AUTHORIZE TRANSACTION ]
+              [ COMPLETE TRANSACTION ]
             </Button>
           </div>
         )}
@@ -156,7 +156,7 @@ export default function CheckoutModal({ isOpen, onClose, selection, onPurchaseSu
             <Loader2 className="animate-spin text-lime-400" size={32} />
             <div className="text-center space-y-1">
               <p className="text-[9px] font-mono tracking-[0.2em] text-[var(--text-primary)] uppercase">
-                PROCESSING_LEDGER...
+                CONFIRMING ORDER...
               </p>
               <p className="text-[8px] font-mono text-[var(--text-muted)]">
                 Please do not close this window
@@ -171,7 +171,7 @@ export default function CheckoutModal({ isOpen, onClose, selection, onPurchaseSu
               <CheckCircle2 className="text-lime-400" size={36} />
               <div className="space-y-1">
                 <h4 className="text-xs font-bold font-mono tracking-widest uppercase text-[var(--foreground)]">
-                  TRANSACTION COMPLETED
+                  ORDER COMPLETED
                 </h4>
                 <p className="text-[10px] font-mono text-[var(--text-secondary)] uppercase tracking-wider">
                   Order ID: #{orderId}
@@ -180,7 +180,7 @@ export default function CheckoutModal({ isOpen, onClose, selection, onPurchaseSu
             </div>
 
             <p className="text-[10px] font-light text-[var(--text-secondary)] leading-relaxed max-w-xs mx-auto">
-              Your virtual look has been logged into the SQLite ledger database. 
+              Your order details have been securely recorded.
               Refer to Order #{orderId} for support or return inquiries.
             </p>
 

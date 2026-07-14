@@ -1,0 +1,1 @@
+from app.knowledge.fashion_service import FashionKnowledgeService

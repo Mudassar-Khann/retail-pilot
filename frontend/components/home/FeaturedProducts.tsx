@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import ProductCard, { ProductType } from "@/components/products/ProductCard";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
+import { ProductCard, type UnifiedProduct } from "@/components/products/ProductCard";
+import { MotionPrimitive, MotionPresence } from "@/design-system/motion/engine";
+import { useCatalogStore } from "@/store/catalogStore";
 
 interface FeaturedProductsProps {
   searchQuery?: string;
 }
 
-const mockProducts: ProductType[] = [
+const mockProducts: UnifiedProduct[] = [
   {
     id: 1,
     name: "Classic Heavyweight Cotton Tee",
@@ -116,34 +117,26 @@ const mockProducts: ProductType[] = [
 ];
 
 export default function FeaturedProducts({ searchQuery = "" }: FeaturedProductsProps) {
-  const [products, setProducts] = useState<ProductType[]>(mockProducts);
+  const { products, fetchProducts } = useCatalogStore();
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch("http://localhost:8000/api/products");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data.products && Array.isArray(data.products) && data.products.length > 0) {
-          setProducts(data.products);
-        }
-      } catch (err) {
-        console.warn("API unavailable, using fallback mock products:", err);
-        // Keep the default mockProducts already set in state
-      }
-    };
-    fetchProducts();
-  }, []);
+    if (products.length === 0) {
+      fetchProducts();
+    }
+  }, [fetchProducts, products.length]);
 
-  const filteredProducts = products.filter((product) => {
+  // Use mockProducts as fallback if no products are fetched and no error (already handled by store, but let's just use mock if empty after fetch)
+  const displayProducts = products.length > 0 ? products : mockProducts;
+
+  const filteredProducts = displayProducts.filter((product) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
-      product.name.toLowerCase().includes(query) ||
-      product.brand.toLowerCase().includes(query) ||
-      product.category.toLowerCase().includes(query) ||
-      product.description.toLowerCase().includes(query) ||
-      product.style_tags.some((tag) => tag.toLowerCase().includes(query))
+      (product.name?.toLowerCase().includes(query)) ||
+      (product.brand?.toLowerCase().includes(query)) ||
+      (product.category?.toLowerCase().includes(query)) ||
+      (product.description?.toLowerCase().includes(query)) ||
+      (product.style_tags?.some((tag) => tag.toLowerCase().includes(query)))
     );
   });
 
@@ -166,34 +159,30 @@ export default function FeaturedProducts({ searchQuery = "" }: FeaturedProductsP
         </div>
 
         {/* Products Grid with gap-8 */}
-        <motion.div 
-          layout 
+        <MotionPrimitive
+          layout
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 min-h-[350px]"
         >
-          <AnimatePresence mode="popLayout">
+          <MotionPresence mode="popLayout">
             {filteredProducts.map((product) => (
-              <motion.div
+              <MotionPrimitive
                 key={product.id}
                 layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                intent="assemble"
               >
                 <ProductCard product={product} />
-              </motion.div>
+              </MotionPrimitive>
             ))}
-          </AnimatePresence>
+          </MotionPresence>
           {filteredProducts.length === 0 && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            <MotionPrimitive
+              intent="assemble"
               className="col-span-full py-24 text-center text-xs font-mono tracking-[0.2em] text-[var(--text-secondary)] uppercase"
             >
               [ No matching garments found ]
-            </motion.div>
+            </MotionPrimitive>
           )}
-        </motion.div>
+        </MotionPrimitive>
       </div>
     </section>
   );

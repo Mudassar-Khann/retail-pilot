@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { MotionPrimitive, MotionPresence } from "@/design-system/motion/engine";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -36,29 +36,31 @@ export function ThemeToggle() {
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Light mode" : "Dark mode"}
     >
-      <AnimatePresence mode="wait" initial={false}>
+      <MotionPresence mode="wait" initial={false}>
         {isDark ? (
-          <motion.div
+          <MotionPrimitive
             key="moon"
+            intent="none"
             initial={{ rotate: -90, scale: 0, opacity: 0 }}
             animate={{ rotate: 0, scale: 1, opacity: 1 }}
             exit={{ rotate: 90, scale: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
           >
             <Moon className="w-[18px] h-[18px]" />
-          </motion.div>
+          </MotionPrimitive>
         ) : (
-          <motion.div
+          <MotionPrimitive
             key="sun"
+            intent="none"
             initial={{ rotate: 90, scale: 0, opacity: 0 }}
             animate={{ rotate: 0, scale: 1, opacity: 1 }}
             exit={{ rotate: -90, scale: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
           >
             <Sun className="w-[18px] h-[18px]" />
-          </motion.div>
+          </MotionPrimitive>
         )}
-      </AnimatePresence>
+      </MotionPresence>
     </button>
   );
 }

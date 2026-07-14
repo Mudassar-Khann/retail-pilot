@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { MotionPrimitive, MotionPresence } from "@/design-system/motion/engine";
 import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/home/Hero";
+import { ProductShowcase } from "@/components/home/ProductShowcase";
 import AIPromptSearch from "@/components/home/AIPromptSearch";
 import FeaturedCategories from "@/components/home/FeaturedCategories";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
@@ -11,19 +12,23 @@ import AIStylistPreview from "@/components/home/AIStylistPreview";
 import VirtualCharacterConfigurator from "@/components/home/VirtualCharacterConfigurator";
 import Footer from "@/components/layout/Footer";
 import CurationDesk from "@/components/admin/CurationDesk";
+import { useFeatureStore } from "@/store/featureStore";
 
 export default function Home() {
   const [view, setView] = useState<"storefront" | "curation">("storefront");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  const { flags } = useFeatureStore();
+
+
 
   return (
     <>
       {/* Utility Top Bar */}
       <div className="bg-[var(--bg-secondary)]/90 border-b border-[var(--border-soft)] text-[8px] font-mono tracking-widest text-[var(--text-secondary)] py-2 px-6 flex justify-between items-center z-50 relative select-none backdrop-blur-md">
-        <span>ENVIRONMENT: DEVELOPMENT // LEDGER ACTIVE</span>
-        <button 
+        <span>ESTABLISHED 2026 // AUTUMN WINTER COLLECTION ACTIVE</span>
+        <button
           onClick={() => setView(view === "storefront" ? "curation" : "storefront")}
           className="hover:text-[var(--foreground)] transition-colors cursor-pointer text-lime-400"
         >
@@ -35,7 +40,7 @@ export default function Home() {
         <CurationDesk onExit={() => setView("storefront")} />
       ) : (
         <>
-          <Navbar 
+          <Navbar
             isSearchOpen={isSearchOpen}
             setIsSearchOpen={setIsSearchOpen}
             searchQuery={searchQuery}
@@ -43,9 +48,10 @@ export default function Home() {
           />
 
           {/* Active Search Drawer (absolute-positioned glass-fluted search bar overlay) */}
-          <AnimatePresence>
+          <MotionPresence>
             {isSearchOpen && (
-              <motion.div
+              <MotionPrimitive
+                intent="none"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -86,12 +92,13 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </MotionPrimitive>
             )}
-          </AnimatePresence>
+          </MotionPresence>
 
           <main className="flex-1">
             <Hero />
+            <ProductShowcase />
             <AIPromptSearch />
             <FeaturedCategories onSelectStyle={setSelectedStyle} />
             <FeaturedProducts searchQuery={searchQuery} />

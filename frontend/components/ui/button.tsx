@@ -5,12 +5,13 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "default" | "secondary" | "outline" | "ghost" | "link";
   size?: "sm" | "md" | "lg";
+  as?: React.ElementType;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "md", ...props }, ref) => {
+  ({ className, variant = "default", size = "md", as: Component = "button", ...props }, ref) => {
     return (
-      <button
+      <Component
         className={cn(
           "inline-flex items-center justify-center font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
           {
@@ -36,8 +37,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           },
           className
         )}
-        ref={ref}
-        {...props}
+        ref={ref as any}
+        {...props as any}
       />
     );
   }

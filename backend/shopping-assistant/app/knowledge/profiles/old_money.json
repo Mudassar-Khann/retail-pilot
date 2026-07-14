@@ -1,0 +1,12 @@
+{
+  "name": "Old Money",
+  "philosophy": "Timeless, understated luxury focusing on heritage fabrics and structure.",
+  "preferred_colors": ["navy", "camel", "cream", "white", "charcoal", "olive", "beige"],
+  "forbidden_colors": ["neon", "bright purple", "cyan"],
+  "formality": "High-Casual / Semi-Formal",
+  "fabrics": ["wool", "cashmere", "linen", "oxford cotton", "corduroy", "tweed"],
+  "layering_pattern": ["shirt", "knitwear", "coat"],
+  "shoes": ["loafer", "chelsea boot"],
+  "accessories": ["leather bag", "beanie"],
+  "compatible_categories": ["Jackets", "Shirts", "Chinos", "Shoes", "Tops"]
+}

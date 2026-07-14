@@ -1,0 +1,12 @@
+{
+  "name": "Streetwear",
+  "philosophy": "Casual, expressive, and comfortable style with relaxed, oversized silhouettes.",
+  "preferred_colors": ["black", "gray", "light blue", "olive", "cream", "silver"],
+  "forbidden_colors": ["neon", "bright purple"],
+  "formality": "Casual / Streetwear",
+  "fabrics": ["cotton", "denim", "fleece", "heavyweight cotton", "canvas"],
+  "layering_pattern": ["t-shirt", "hoodie", "puffer jacket"],
+  "shoes": ["sneaker", "platform sneaker"],
+  "accessories": ["beanie", "cap"],
+  "compatible_categories": ["T-Shirts", "Hoodies", "Jeans", "Cargo Pants", "Shoes"]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Techwear",
+  "philosophy": "High-performance, functional, and minimalist technical apparel.",
+  "preferred_colors": ["black", "matte black", "olive drab", "charcoal", "silver"],
+  "forbidden_colors": ["neon", "bright purple", "beige", "cream"],
+  "formality": "Technical / Casual",
+  "fabrics": ["gore-tex", "nylon", "ripstop", "polyester", "canvas"],
+  "layering_pattern": ["technical tee", "modular vest", "shell jacket"],
+  "shoes": ["combat boot", "waterproof sneaker"],
+  "accessories": ["cobra buckle belt", "messenger bag"],
+  "compatible_categories": ["Jackets", "Hoodies", "Cargo Pants", "Shoes", "Accessories"]
+}

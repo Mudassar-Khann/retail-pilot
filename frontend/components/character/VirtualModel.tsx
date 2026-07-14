@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { MotionPrimitive, MotionPresence } from "@/design-system/motion/engine";
 import { useState, useEffect, useRef } from "react";
 import { OutfitSelection } from "./OutfitState";
 import { GarmentOverlayArt } from "./garmentArt";
@@ -82,7 +82,7 @@ function ParticleMeshCanvas({ isSpeedup }: { isSpeedup: boolean }) {
       ctx.clearRect(0, 0, width, height);
 
       const speedMultiplier = isSpeedup ? 3.5 : 1.0;
-      
+
       // Update nodes positions along a wave path
       particles.forEach((p) => {
         p.x += p.vx * speedMultiplier;
@@ -115,8 +115,8 @@ function ParticleMeshCanvas({ isSpeedup }: { isSpeedup: boolean }) {
 
       // Draw tiny node dots
       particles.forEach((p) => {
-        ctx.fillStyle = isSpeedup 
-          ? "rgba(204, 255, 0, 0.4)" 
+        ctx.fillStyle = isSpeedup
+          ? "rgba(204, 255, 0, 0.4)"
           : "rgba(255, 255, 255, 0.2)";
         ctx.beginPath();
         ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
@@ -140,20 +140,20 @@ function ParticleMeshCanvas({ isSpeedup }: { isSpeedup: boolean }) {
 
 export default function VirtualModel({ selection, activeSlot, gender, onGenderChange, onStyleScoreChange }: VirtualModelProps) {
   const [isCalibrating, setIsCalibrating] = useState(false);
-  const [telemetryText, setTelemetryText] = useState("MESH_OK");
+  const [telemetryText, setTelemetryText] = useState("MODEL_ACTIVE");
   const [styleScore, setStyleScore] = useState<StyleScoreResult>(INCOMPLETE_SCORE);
   const [isScoring, setIsScoring] = useState(false);
 
   // Garment drape calibration effect on change
   useEffect(() => {
     setIsCalibrating(true);
-    setTelemetryText("CALIBRATING_DRAPE...");
+    setTelemetryText("ADJUSTING FIT...");
     const t1 = setTimeout(() => {
-      setTelemetryText("DRAPE_CALIBRATION_OK");
+      setTelemetryText("FIT CALIBRATED");
     }, 500);
     const t2 = setTimeout(() => {
       setIsCalibrating(false);
-      setTelemetryText("MESH_OK");
+      setTelemetryText("MODEL_ACTIVE");
     }, 1000);
     return () => {
       clearTimeout(t1);
@@ -219,9 +219,9 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
   return (
     <div className="relative w-full max-w-[340px] aspect-[9/16] border border-[var(--border-soft)] bg-[var(--background)] overflow-hidden flex flex-col justify-between p-5 rounded-lg shadow-2xl" style={{ containIntrinsicSize: '340px 604px', contentVisibility: 'auto' }}>
       {/* LAYER 0: Neon Accent Background (asymmetric neon_accent.png) */}
-      <img 
-        src="/assets/backgrounds/neon_accent.png" 
-        alt="" 
+      <img
+        src="/assets/backgrounds/neon_accent.png"
+        alt=""
         className="absolute top-0 right-[-20%] h-full w-auto opacity-20 pointer-events-none mix-blend-screen z-0"
       />
 
@@ -229,9 +229,9 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
       <ParticleMeshCanvas isSpeedup={isCalibrating} />
 
       {/* LAYER 1: Base Mannequin Body (male_base.png or female_base.png) */}
-      <img 
-        src={gender === 'male' ? '/assets/models/male_base.png' : '/assets/models/female_base.png'} 
-        alt={`${gender} model`} 
+      <img
+        src={gender === 'male' ? '/assets/models/male_base.png' : '/assets/models/female_base.png'}
+        alt={`${gender} model`}
         className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none opacity-80"
       />
 
@@ -246,10 +246,11 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
       {/* LAYER 2: Garment Overlays Container */}
       <div className="absolute inset-0 z-10 pointer-events-none">
         {/* BOTTOMS */}
-        <AnimatePresence mode="popLayout">
+        <MotionPresence mode="popLayout">
           {selection.bottom && (
-            <motion.div
+            <MotionPrimitive
               key={`bottom-${selection.bottom.id}`}
+              intent="none"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
@@ -257,15 +258,16 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
               className="absolute inset-0 z-10 neon-garment-glow will-change-transform pointer-events-none"
             >
               <GarmentOverlayArt product={selection.bottom} slot="bottom" />
-            </motion.div>
+            </MotionPrimitive>
           )}
-        </AnimatePresence>
+        </MotionPresence>
 
         {/* TOPS */}
-        <AnimatePresence mode="popLayout">
+        <MotionPresence mode="popLayout">
           {selection.top && (
-            <motion.div
+            <MotionPrimitive
               key={`top-${selection.top.id}`}
+              intent="none"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
@@ -273,15 +275,16 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
               className="absolute inset-0 z-20 neon-garment-glow will-change-transform pointer-events-none"
             >
               <GarmentOverlayArt product={selection.top} slot="top" />
-            </motion.div>
+            </MotionPrimitive>
           )}
-        </AnimatePresence>
+        </MotionPresence>
 
         {/* OUTERWEAR */}
-        <AnimatePresence mode="popLayout">
+        <MotionPresence mode="popLayout">
           {selection.outerwear && (
-            <motion.div
+            <MotionPrimitive
               key={`outer-${selection.outerwear.id}`}
+              intent="none"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
@@ -289,15 +292,16 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
               className="absolute inset-0 z-25 neon-garment-glow will-change-transform pointer-events-none"
             >
               <GarmentOverlayArt product={selection.outerwear} slot="outerwear" />
-            </motion.div>
+            </MotionPrimitive>
           )}
-        </AnimatePresence>
+        </MotionPresence>
 
         {/* SHOES */}
-        <AnimatePresence mode="popLayout">
+        <MotionPresence mode="popLayout">
           {selection.shoes && (
-            <motion.div
+            <MotionPrimitive
               key={`shoes-${selection.shoes.id}`}
+              intent="none"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
@@ -305,15 +309,16 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
               className="absolute inset-0 z-15 neon-garment-glow will-change-transform pointer-events-none"
             >
               <GarmentOverlayArt product={selection.shoes} slot="shoes" />
-            </motion.div>
+            </MotionPrimitive>
           )}
-        </AnimatePresence>
+        </MotionPresence>
       </div>
 
       {/* LAYER 3: Overlay Diagnostics (mesh_flow.png) & Refractive Glass Caustics */}
-      <AnimatePresence>
+      <MotionPresence>
         {isCalibrating && (
-          <motion.div 
+          <MotionPrimitive
+            intent="none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -322,18 +327,18 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
             {/* Shimmering Golden Caustics layer */}
             <div className="absolute inset-0 caustics-layer z-10 opacity-75" />
 
-            <img 
-              src="/assets/backgrounds/mesh_flow.png" 
-              alt="" 
+            <img
+              src="/assets/backgrounds/mesh_flow.png"
+              alt=""
               className="absolute inset-0 w-full h-full object-cover opacity-15 animate-pulse z-0"
             />
             <div className="flex justify-between items-center w-full text-[8px] font-mono tracking-widest text-[var(--text-secondary)] uppercase z-40 relative">
               <span className="bg-[var(--background)]/85 px-1.5 py-0.5 rounded-[1px] border border-[var(--border-soft)]/40">DRAPE_RENDER_CORE</span>
               <span className="text-lime-400 bg-[var(--background)]/85 px-1.5 py-0.5 rounded-[1px] border border-[var(--border-soft)]/40">{telemetryText}</span>
             </div>
-          </motion.div>
+          </MotionPrimitive>
         )}
-      </AnimatePresence>
+      </MotionPresence>
 
       <div className="absolute inset-x-4 bottom-14 z-40">
         <AestheticScore score={styleScore} isLoading={isScoring} />
@@ -341,21 +346,21 @@ export default function VirtualModel({ selection, activeSlot, gender, onGenderCh
 
       {/* Model Gender controls at the bottom */}
       <div className="flex justify-center gap-3 z-40 border-t border-[var(--accent-gold)]/18 pt-4">
-        <button 
+        <button
           onClick={() => onGenderChange('male')}
           className={`px-3.5 py-1.5 text-[8px] font-mono tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer ${
-            gender === 'male' 
-              ? 'bg-[var(--accent-gold)] text-[var(--background)] font-bold border border-[var(--accent-gold-hover)]' 
+            gender === 'male'
+              ? 'bg-[var(--accent-gold)] text-[var(--background)] font-bold border border-[var(--accent-gold-hover)]'
               : 'bg-[var(--bg-secondary)]/90 text-[var(--text-secondary)] border border-[var(--accent-gold)]/18 hover:text-[var(--text-primary)] hover:border-[var(--accent-gold)]/40'
           }`}
         >
           [ MODEL: MALE ]
         </button>
-        <button 
+        <button
           onClick={() => onGenderChange('female')}
           className={`px-3.5 py-1.5 text-[8px] font-mono tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer ${
-            gender === 'female' 
-              ? 'bg-[var(--accent-gold)] text-[var(--background)] font-bold border border-[var(--accent-gold-hover)]' 
+            gender === 'female'
+              ? 'bg-[var(--accent-gold)] text-[var(--background)] font-bold border border-[var(--accent-gold-hover)]'
               : 'bg-[var(--bg-secondary)]/90 text-[var(--text-secondary)] border border-[var(--accent-gold)]/18 hover:text-[var(--text-primary)] hover:border-[var(--accent-gold)]/40'
           }`}
         >
