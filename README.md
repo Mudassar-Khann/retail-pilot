@@ -283,14 +283,12 @@ Outfits compiled strictly within a budget constraints check.
 
 ---
 
-## Walkthrough Demo Videos
+## Demonstration Videos
 
-The repository includes pre-recorded walkthough videos of the entire application.
+High-definition walkthrough recordings demonstrating the complete user flow are attached directly to the [GitHub Release (v1.0.0)](https://github.com/Mudassar-Khann/retail-pilot/releases/tag/v1.0.0):
 
-* **Dark Mode Walkthrough**: Located at `D:\Screen-Recording\RetailPilot-Dark.mp4`.
-  Demonstrates smooth scroll, product transitions, styling conversations, mannequin draping, and layout responsiveness.
-* **Light Mode Walkthrough**: Located at `D:\Screen-Recording\RetailPilot-Light.mp4`.
-  Demonstrates the same comprehensive user flow in light mode.
+* **RetailPilot-Dark.mp4**: Showcases the dark mode cinematic experience, smooth scrolling dynamics, product details drawer transitions, AI stylist interactions, and responsive mobile rendering.
+* **RetailPilot-Light.mp4**: Showcases the light mode interface, mannequin Try-On draping simulator, style telemetry score updates, and checkout workflow.
 
 ---
 
