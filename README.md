@@ -1,5 +1,7 @@
 # RetailPilot
 
+![RetailPilot Hero Interface](assets/screenshots/1_hero_dark.png)
+
 RetailPilot is an ultra-premium, modern digital fashion editorial salon and retail web platform. It integrates a deterministic, agentic AI Shopping Assistant powered by the Google Agent Development Kit (ADK) 2.0 and FastAPI with a highly interactive glassmorphic React frontend, complete with an interactive mannequin drape simulator.
 
 Designed for high-end digital shopping, RetailPilot showcases clean typography, rich animations, and structured styling recommendations spanning three curated aesthetics: **Old Money**, **Streetwear**, and **Minimalist Techwear**.
